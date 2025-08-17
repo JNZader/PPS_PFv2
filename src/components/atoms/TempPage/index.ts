@@ -1,0 +1,1 @@
+export { TempPage } from './TempPage';
