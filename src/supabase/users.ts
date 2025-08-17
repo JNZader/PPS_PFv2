@@ -279,7 +279,7 @@ export async function inviteUser(invitation: UserInvitation): Promise<void> {
     const tempPassword = Math.random().toString(36).slice(-8);
 
     // Crear usuario en Auth
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+    const { error: authError } = await supabase.auth.admin.createUser({
       email: invitation.email,
       password: tempPassword,
       email_confirm: false,

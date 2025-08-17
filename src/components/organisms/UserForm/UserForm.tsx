@@ -1,12 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import { 
-  MdAdminPanelSettings, 
+import { useForm } from 'react-hook-form'; // ✅ Eliminamos Controller y setValue que no se usan
+import {
+  MdAdminPanelSettings,
   MdInfo,
-  MdLock, 
-  MdPerson, 
-  MdSupervisorAccount 
+  MdLock,
+  MdPerson,
+  MdSupervisorAccount,
 } from 'react-icons/md';
 import { z } from 'zod';
 import { useCreateUser, useUpdateUser } from '../../../hooks/useUsers';
@@ -16,14 +16,14 @@ import { Input } from '../../atoms/Input';
 import { Select } from '../../atoms/Select';
 import styles from './UserForm.module.css';
 
-// Schema de validación
+// Schema de validación - ✅ Simplificamos para evitar conflictos de tipos
 const userSchema = z.object({
   nombres: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
   correo: z.string().email('Email inválido'),
   tipouser: z.enum(['superadmin', 'admin', 'empleado']),
   nro_doc: z.string().min(1, 'Número de documento requerido'),
-  telefono: z.string().optional(),
-  direccion: z.string().optional(),
+  telefono: z.string(), // ✅ Requerido como string, manejo en defaultValues
+  direccion: z.string(), // ✅ Requerido como string, manejo en defaultValues
   tipodoc: z.enum(['DNI', 'CUIT', 'PASAPORTE']),
   password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres').optional(),
 });
@@ -38,7 +38,7 @@ interface UserFormProps {
 
 export const UserForm = ({ user, onSuccess, onCancel }: UserFormProps) => {
   const isEditing = !!user;
-  
+
   const createUserMutation = useCreateUser();
   const updateUserMutation = useUpdateUser();
 
@@ -47,8 +47,8 @@ export const UserForm = ({ user, onSuccess, onCancel }: UserFormProps) => {
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-    setValue,
     watch,
+    // ✅ Eliminamos setValue ya que no se usa en este componente
   } = useForm<UserFormData>({
     resolver: zodResolver(userSchema),
     defaultValues: {
@@ -56,8 +56,8 @@ export const UserForm = ({ user, onSuccess, onCancel }: UserFormProps) => {
       correo: '',
       tipouser: 'empleado',
       nro_doc: '',
-      telefono: '',
-      direccion: '',
+      telefono: '', // ✅ String vacío por defecto
+      direccion: '', // ✅ String vacío por defecto
       tipodoc: 'DNI',
       password: '',
     },
@@ -73,9 +73,9 @@ export const UserForm = ({ user, onSuccess, onCancel }: UserFormProps) => {
         correo: user.correo,
         tipouser: user.tipouser,
         nro_doc: user.nro_doc || '',
-        telefono: user.telefono || '',
-        direccion: user.direccion || '',
-        tipodoc: user.tipodoc as 'DNI' | 'CUIT' | 'PASAPORTE' || 'DNI',
+        telefono: user.telefono || '', // ✅ Asegurar que sea string
+        direccion: user.direccion || '', // ✅ Asegurar que sea string
+        tipodoc: (user.tipodoc as 'DNI' | 'CUIT' | 'PASAPORTE') || 'DNI',
       });
     }
   }, [isEditing, user, reset]);
@@ -133,10 +133,9 @@ export const UserForm = ({ user, onSuccess, onCancel }: UserFormProps) => {
           {isEditing ? 'Editar Usuario' : 'Nuevo Usuario'}
         </h2>
         <p className={styles.formSubtitle}>
-          {isEditing 
+          {isEditing
             ? 'Modifica la información del usuario'
-            : 'Ingresa los datos del nuevo usuario'
-          }
+            : 'Ingresa los datos del nuevo usuario'}
         </p>
       </div>
 
@@ -181,7 +180,10 @@ export const UserForm = ({ user, onSuccess, onCancel }: UserFormProps) => {
               required
               {...register('nro_doc')}
             />
-<div className={styles.formGrid}>
+          </div>
+
+          {/* ✅ Cerrar correctamente el div */}
+          <div className={styles.formGrid}>
             <Input
               label="Teléfono"
               placeholder="+54 11 1234-5678"
@@ -241,10 +243,9 @@ export const UserForm = ({ user, onSuccess, onCancel }: UserFormProps) => {
           <div className={styles.passwordSection}>
             <div className={styles.passwordNote}>
               <MdInfo size={16} />
-              {isEditing 
+              {isEditing
                 ? 'Deja en blanco para mantener la contraseña actual'
-                : 'La contraseña debe tener al menos 6 caracteres'
-              }
+                : 'La contraseña debe tener al menos 6 caracteres'}
             </div>
 
             <Input
@@ -270,11 +271,7 @@ export const UserForm = ({ user, onSuccess, onCancel }: UserFormProps) => {
             Cancelar
           </Button>
 
-          <Button
-            type="submit"
-            loading={isSubmitting}
-            className={styles.submitButton}
-          >
+          <Button type="submit" loading={isSubmitting} className={styles.submitButton}>
             {isEditing ? 'Actualizar Usuario' : 'Crear Usuario'}
           </Button>
         </div>

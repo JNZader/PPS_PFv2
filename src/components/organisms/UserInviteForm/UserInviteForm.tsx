@@ -36,7 +36,6 @@ export const UserInviteForm = ({ onSuccess, onCancel }: UserInviteFormProps) => 
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    setValue,
     watch,
   } = useForm<InviteFormData>({
     resolver: zodResolver(inviteSchema),
@@ -103,17 +102,19 @@ export const UserInviteForm = ({ onSuccess, onCancel }: UserInviteFormProps) => 
           {...register('nombres')}
         />
 
-        <div>
-          <label
+        <fieldset style={{ border: 'none', padding: 0, margin: 0 }}>
+          <legend
             style={{
               display: 'block',
               marginBottom: 'var(--spacing-sm)',
               fontWeight: 500,
               fontSize: 'var(--font-size-sm)',
+              color: 'var(--text-primary)',
+              padding: 0,
             }}
           >
             Rol del usuario *
-          </label>
+          </legend>
           <div className={styles.roleSelector}>
             {roles.map((role) => (
               <label
@@ -133,7 +134,7 @@ export const UserInviteForm = ({ onSuccess, onCancel }: UserInviteFormProps) => 
               </label>
             ))}
           </div>
-        </div>
+        </fieldset>
 
         <Input
           label="Mensaje personalizado (opcional)"

@@ -13,7 +13,7 @@ import {
   toggleUserStatus,
   updateUser,
 } from '../supabase/users';
-import type { UserFilters, UserFormData, UserInvitation } from '../types/auth';
+import type { UserFilters, UserFormData } from '../types/auth';
 
 // ID de empresa temporal
 const EMPRESA_ID = 1;

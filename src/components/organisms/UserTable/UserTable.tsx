@@ -24,7 +24,7 @@ import {
 } from '../../../hooks/useUsers';
 import { useAuthStore } from '../../../store/authStore';
 import type { UserFilters, UserWithStats } from '../../../types/auth';
-import { formatDate, formatRelativeTime } from '../../../utils/format';
+import { formatRelativeTime } from '../../../utils/format'; // ✅ Solo importamos la función que usamos
 import { Button } from '../../atoms/Button';
 import { Input } from '../../atoms/Input';
 import { Select } from '../../atoms/Select';
@@ -230,7 +230,10 @@ export const UserTable = ({ onEdit, onAdd }: UserTableProps) => {
                 options={roleOptions}
                 value={filters.tipouser}
                 onChange={(e) =>
-                  setFilters((prev) => ({ ...prev, tipouser: e.target.value as any }))
+                  setFilters((prev) => ({
+                    ...prev,
+                    tipouser: e.target.value as 'superadmin' | 'admin' | 'empleado' | '', // ✅ Tipado explícito
+                  }))
                 }
               />
 
