@@ -9,7 +9,8 @@ import { Categories } from '../pages/Categories/Categories';
 import { Dashboard } from '../pages/Dashboard/Dashboard';
 import { Inventory } from '../pages/Inventory/Inventory';
 import { Products } from '../pages/Products/Products';
-import { Users } from '../pages/Users/Users'; // ← Nueva importación
+import { Reports } from '../pages/Reports/Reports'; // ← Nueva importación
+import { Users } from '../pages/Users/Users';
 
 export const router = createBrowserRouter([
   {
@@ -57,15 +58,15 @@ export const router = createBrowserRouter([
         element: <Inventory />,
       },
       {
-        path: 'reports',
+        path: 'reports', // ← Actualizar esta ruta
         element: (
           <ProtectedRoute requiredRoles={['superadmin', 'admin']}>
-            <TempPage title="Reportes" />
+            <Reports />
           </ProtectedRoute>
         ),
       },
       {
-        path: 'users', // ← Nueva ruta
+        path: 'users',
         element: (
           <ProtectedRoute requiredRoles={['superadmin']}>
             <Users />

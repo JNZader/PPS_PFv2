@@ -11,6 +11,7 @@ export { TempPage } from './atoms/TempPage';
 
 // Molecules
 export { Modal } from './molecules/Modal';
+export { ReportFilters } from './molecules/ReportFilters'; // ← Nueva exportación
 
 // Organisms
 export { KardexTable } from './organisms/KardexTable';
@@ -18,6 +19,7 @@ export { MovementForm } from './organisms/MovementForm';
 export { ProductForm } from './organisms/ProductForm';
 export { ProductTable } from './organisms/ProductTable';
 export { ProtectedRoute } from './organisms/ProtectedRoute';
+export { ReportCard } from './organisms/ReportCard'; // ← Nueva exportación
 export { UserActivities } from './organisms/UserActivities';
 export { UserForm } from './organisms/UserForm';
 export { UserInviteForm } from './organisms/UserInviteForm';

@@ -102,8 +102,8 @@ export const Dashboard = () => {
     {
       to: '/reports',
       icon: <MdAssessment size={20} />,
-      title: 'Ver Reportes',
-      description: 'Generar reportes detallados',
+      title: 'Generar Reportes',
+      description: 'Reportes de stock y kardex',
     },
     {
       to: '/categories',
@@ -122,34 +122,34 @@ export const Dashboard = () => {
   // Preparar datos del gráfico con datos reales de kardex
   const chartData = kardexStats
     ? [
-        ...kardexStats.entradasPorDia.map((item) => ({
+      ...kardexStats.entradasPorDia.map((item) => ({
+        date: item.fecha,
+        sales: 0,
+        entries: item.cantidad,
+      })),
+      ...kardexStats.salidasPorDia.map((item) => {
+        const existing = kardexStats.entradasPorDia.find((e) => e.fecha === item.fecha);
+        return {
           date: item.fecha,
-          sales: 0,
-          entries: item.cantidad,
-        })),
-        ...kardexStats.salidasPorDia.map((item) => {
-          const existing = kardexStats.entradasPorDia.find((e) => e.fecha === item.fecha);
-          return {
-            date: item.fecha,
-            sales: item.cantidad,
-            entries: existing?.cantidad || 0,
-          };
-        }),
-      ]
-        .reduce(
-          (acc, curr) => {
-            const existing = acc.find((item) => item.date === curr.date);
-            if (existing) {
-              existing.sales = Math.max(existing.sales, curr.sales);
-              existing.entries = Math.max(existing.entries, curr.entries);
-            } else {
-              acc.push(curr);
-            }
-            return acc;
-          },
-          [] as Array<{ date: string; sales: number; entries: number }>
-        )
-        .sort((a, b) => a.date.localeCompare(b.date))
+          sales: item.cantidad,
+          entries: existing?.cantidad || 0,
+        };
+      }),
+    ]
+      .reduce(
+        (acc, curr) => {
+          const existing = acc.find((item) => item.date === curr.date);
+          if (existing) {
+            existing.sales = Math.max(existing.sales, curr.sales);
+            existing.entries = Math.max(existing.entries, curr.entries);
+          } else {
+            acc.push(curr);
+          }
+          return acc;
+        },
+        [] as Array<{ date: string; sales: number; entries: number }>
+      )
+      .sort((a, b) => a.date.localeCompare(b.date))
     : data.salesChart;
 
   return (
@@ -193,9 +193,8 @@ export const Dashboard = () => {
             <div className={styles.statLabel}>{stat.label}</div>
             {stat.trend !== null && (
               <div
-                className={`${styles.statTrend} ${
-                  stat.trend >= 0 ? styles.trendUp : styles.trendDown
-                }`}
+                className={`${styles.statTrend} ${stat.trend >= 0 ? styles.trendUp : styles.trendDown
+                  }`}
               >
                 {stat.trend >= 0 ? <MdArrowUpward size={16} /> : <MdArrowDownward size={16} />}
                 {Math.abs(stat.trend)}% vs ayer
@@ -298,9 +297,8 @@ export const Dashboard = () => {
           data.recentMovements.map((movement) => (
             <div key={movement.id} className={styles.movementItem}>
               <div
-                className={`${styles.movementIcon} ${
-                  movement.type === 'entry' ? styles.entryIcon : styles.exitIcon
-                }`}
+                className={`${styles.movementIcon} ${movement.type === 'entry' ? styles.entryIcon : styles.exitIcon
+                  }`}
               >
                 {movement.type === 'entry' ? (
                   <MdArrowDownward size={20} />
