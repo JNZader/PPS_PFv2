@@ -7,8 +7,9 @@ import { Login } from '../pages/Auth/Login/Login';
 import { Register } from '../pages/Auth/Register/Register';
 import { Categories } from '../pages/Categories/Categories';
 import { Dashboard } from '../pages/Dashboard/Dashboard';
-import { Inventory } from '../pages/Inventory/Inventory'; // ← Nueva importación
+import { Inventory } from '../pages/Inventory/Inventory';
 import { Products } from '../pages/Products/Products';
+import { Users } from '../pages/Users/Users'; // ← Nueva importación
 
 export const router = createBrowserRouter([
   {
@@ -52,7 +53,7 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: 'inventory', // ← Nueva ruta
+        path: 'inventory',
         element: <Inventory />,
       },
       {
@@ -64,10 +65,10 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: 'users',
+        path: 'users', // ← Nueva ruta
         element: (
           <ProtectedRoute requiredRoles={['superadmin']}>
-            <TempPage title="Gestión de Personal" />
+            <Users />
           </ProtectedRoute>
         ),
       },

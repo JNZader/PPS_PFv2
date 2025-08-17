@@ -1,0 +1,337 @@
+.tableContainer {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.tableHeader {
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
+.tableTitle {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.tableActions {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
+.searchContainer {
+  position: relative;
+  min-width: 300px;
+}
+
+.searchInput {
+  width: 100%;
+  padding-left: 40px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+}
+
+.filtersContainer {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--bg-secondary);
+}
+
+.filtersGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+  align-items: end;
+}
+
+.filterToggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  transition: color var(--transition-normal);
+}
+
+.filterToggle:hover {
+  color: var(--color-primary);
+}
+
+.statsContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background: var(--bg-secondary);
+}
+
+.statCard {
+  background: var(--bg-card);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
+.statValue {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.statLabel {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tableHead {
+  background-color: var(--bg-secondary);
+}
+
+.headerCell {
+  padding: var(--spacing-md) var(--spacing-lg);
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.tableBody {
+  background-color: var(--bg-card);
+}
+
+.tableRow {
+  transition: background-color var(--transition-normal);
+}
+
+.tableRow:hover {
+  background-color: var(--bg-accent);
+}
+
+.tableCell {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: middle;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.userAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+}
+
+.userDetails {
+  flex: 1;
+}
+
+.userName {
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.userEmail {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.userRole {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.roleSuperadmin {
+  background-color: var(--color-error);
+  color: white;
+}
+
+.roleAdmin {
+  background-color: var(--color-warning);
+  color: white;
+}
+
+.roleEmpleado {
+  background-color: var(--color-success);
+  color: white;
+}
+
+.userStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+.statusActivo {
+  background-color: var(--color-success);
+  color: white;
+}
+
+.statusInactivo {
+  background-color: var(--color-error);
+  color: white;
+}
+
+.userStats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.statItem {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.actionsCell {
+  display: flex;
+  gap: var(--spacing-xs);
+  justify-content: center;
+}
+
+.actionButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--spacing-xs);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-normal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.editButton {
+  color: var(--color-primary);
+}
+
+.editButton:hover {
+  background-color: rgb(59 130 246 / 0.1);
+}
+
+.toggleButton {
+  color: var(--color-warning);
+}
+
+.toggleButton:hover {
+  background-color: rgb(245 158 11 / 0.1);
+}
+
+.deleteButton {
+  color: var(--color-error);
+}
+
+.deleteButton:hover {
+  background-color: rgb(239 68 68 / 0.1);
+}
+
+.resetButton {
+  color: var(--text-secondary);
+}
+
+.resetButton:hover {
+  background-color: var(--bg-accent);
+}
+
+.emptyState {
+  padding: var(--spacing-2xl);
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.emptyIcon {
+  color: var(--text-muted);
+  margin-bottom: var(--spacing-md);
+}
+
+.emptyTitle {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.emptyDescription {
+  margin-bottom: var(--spacing-lg);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .tableHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .searchContainer {
+    min-width: auto;
+  }
+
+  .filtersGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .table {
+    font-size: var(--font-size-sm);
+  }
+
+  .tableCell {
+    padding: var(--spacing-sm);
+  }
+
+  .actionsCell {
+    flex-direction: column;
+  }
+
+  .statsContainer {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

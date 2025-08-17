@@ -1,0 +1,133 @@
+.formContainer {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.formHeader {
+  margin-bottom: var(--spacing-xl);
+  text-align: center;
+}
+
+.formTitle {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+}
+
+.formSubtitle {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.roleSelector {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--spacing-sm);
+}
+
+.roleOption {
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  text-align: center;
+}
+
+.roleOption:hover {
+  border-color: var(--color-primary);
+  background: var(--bg-accent);
+}
+
+.roleOptionSelected {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: white;
+}
+
+.roleIcon {
+  margin-bottom: var(--spacing-xs);
+}
+
+.roleLabel {
+  font-weight: 500;
+  font-size: var(--font-size-sm);
+}
+
+.infoBox {
+  background: var(--bg-accent);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  margin: var(--spacing-md) 0;
+}
+
+.infoTitle {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-xs);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.infoText {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.formActions {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: flex-end;
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--border-color);
+}
+
+.cancelButton {
+  flex: 1;
+  max-width: 120px;
+}
+
+.submitButton {
+  flex: 1;
+  max-width: 150px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .formContainer {
+    padding: var(--spacing-md);
+    margin: var(--spacing-md);
+  }
+
+  .roleSelector {
+    grid-template-columns: 1fr;
+  }
+
+  .formActions {
+    flex-direction: column;
+  }
+
+  .cancelButton,
+  .submitButton {
+    max-width: none;
+  }
+}

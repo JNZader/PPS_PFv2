@@ -1,0 +1,173 @@
+.formContainer {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.formHeader {
+  margin-bottom: var(--spacing-2xl);
+  text-align: center;
+}
+
+.formTitle {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+}
+
+.formSubtitle {
+  color: var(--text-secondary);
+  font-size: var(--font-size-base);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-lg);
+}
+
+.formSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.sectionTitle {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.sectionDivider {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: var(--spacing-lg) 0;
+}
+
+.roleSelector {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--spacing-md);
+}
+
+.roleOption {
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  text-align: center;
+}
+
+.roleOption:hover {
+  border-color: var(--color-primary);
+  background: var(--bg-accent);
+}
+
+.roleOptionSelected {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: white;
+}
+
+.roleIcon {
+  margin-bottom: var(--spacing-sm);
+}
+
+.roleLabel {
+  font-weight: 600;
+  margin-bottom: var(--spacing-xs);
+}
+
+.roleDescription {
+  font-size: var(--font-size-sm);
+  opacity: 0.8;
+}
+
+.documentInputs {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: var(--spacing-md);
+}
+
+.formActions {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: flex-end;
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--border-color);
+}
+
+.cancelButton {
+  flex: 1;
+  max-width: 150px;
+}
+
+.submitButton {
+  flex: 1;
+  max-width: 150px;
+}
+
+.passwordSection {
+  background: var(--bg-accent);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+}
+
+.passwordNote {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .formContainer {
+    padding: var(--spacing-md);
+    margin: var(--spacing-md);
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .roleSelector {
+    grid-template-columns: 1fr;
+  }
+
+  .documentInputs {
+    grid-template-columns: 1fr;
+  }
+
+  .formActions {
+    flex-direction: column;
+  }
+
+  .cancelButton,
+  .submitButton {
+    max-width: none;
+  }
+}

@@ -13,11 +13,15 @@ export { TempPage } from './atoms/TempPage';
 export { Modal } from './molecules/Modal';
 
 // Organisms
-export { KardexTable } from './organisms/KardexTable'; // ← Nuevo
-export { MovementForm } from './organisms/MovementForm'; // ← Nuevo
+export { KardexTable } from './organisms/KardexTable';
+export { MovementForm } from './organisms/MovementForm';
 export { ProductForm } from './organisms/ProductForm';
 export { ProductTable } from './organisms/ProductTable';
 export { ProtectedRoute } from './organisms/ProtectedRoute';
+export { UserActivities } from './organisms/UserActivities';
+export { UserForm } from './organisms/UserForm';
+export { UserInviteForm } from './organisms/UserInviteForm';
+export { UserTable } from './organisms/UserTable';
 
 // Templates
 export { DashboardLayout } from './templates/DashboardLayout';

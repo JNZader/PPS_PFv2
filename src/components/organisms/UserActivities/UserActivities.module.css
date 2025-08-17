@@ -1,0 +1,111 @@
+.activitiesContainer {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.header {
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+}
+
+.title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.activitiesList {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.activityItem {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+}
+
+.activityItem:last-child {
+  border-bottom: none;
+}
+
+.activityIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: var(--font-size-sm);
+  flex-shrink: 0;
+}
+
+.iconCreate {
+  background-color: var(--color-success);
+}
+
+.iconUpdate {
+  background-color: var(--color-warning);
+}
+
+.iconDelete {
+  background-color: var(--color-error);
+}
+
+.iconLogin {
+  background-color: var(--color-primary);
+}
+
+.iconOther {
+  background-color: var(--text-secondary);
+}
+
+.activityContent {
+  flex: 1;
+}
+
+.activityAction {
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.activityDetails {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.activityTime {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  text-align: right;
+  margin-top: var(--spacing-xs);
+}
+
+.emptyState {
+  padding: var(--spacing-2xl);
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.emptyIcon {
+  color: var(--text-muted);
+  margin-bottom: var(--spacing-md);
+}
+
+.loadingState {
+  padding: var(--spacing-xl);
+  text-align: center;
+  color: var(--text-secondary);
+}
