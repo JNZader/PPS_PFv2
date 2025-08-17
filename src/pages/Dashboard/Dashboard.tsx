@@ -23,7 +23,7 @@ import {
 import { Alert } from '../../components/atoms/Alert';
 import { Badge } from '../../components/atoms/Badge';
 import { Loading } from '../../components/atoms/Loading';
-import { useKardexStats } from '../../hooks/useKardex'; // ← Nuevo import
+import { useKardexStats } from '../../hooks/useKardex';
 import { useProducts } from '../../hooks/useProducts';
 import { useDashboardData } from '../../services/mockData';
 import { useAuthStore } from '../../store/authStore';
@@ -32,8 +32,9 @@ import styles from './Dashboard.module.css';
 
 export const Dashboard = () => {
   const { user } = useAuthStore();
-  const { data: products = [] } = useProducts(); // ← Usar datos reales
-  const { data: kardexStats } = useKardexStats(7); // ← Últimos 7 días
+  // ⬇️ Ahora products es Producto[] gracias al hook tipado
+  const { data: products = [] } = useProducts();
+  const { data: kardexStats } = useKardexStats(7);
   const { data, isLoading, error, refetch } = useDashboardData();
 
   if (isLoading) {
@@ -93,7 +94,7 @@ export const Dashboard = () => {
       description: 'Registrar nuevo producto',
     },
     {
-      to: '/inventory', // ← Cambiar ruta
+      to: '/inventory',
       icon: <MdInventory size={20} />,
       title: 'Movimiento de Stock',
       description: 'Entrada o salida de inventario',
@@ -123,7 +124,7 @@ export const Dashboard = () => {
     ? [
         ...kardexStats.entradasPorDia.map((item) => ({
           date: item.fecha,
-          sales: 0, // Mantener compatibilidad
+          sales: 0,
           entries: item.cantidad,
         })),
         ...kardexStats.salidasPorDia.map((item) => {
@@ -171,7 +172,6 @@ export const Dashboard = () => {
         </div>
       </div>
 
-      {/* Alerta de stock bajo */}
       {lowStockProducts.length > 0 && (
         <Alert variant="warning" title={`${lowStockProducts.length} productos con stock bajo`}>
           Algunos productos necesitan reabastecimiento.
@@ -193,7 +193,9 @@ export const Dashboard = () => {
             <div className={styles.statLabel}>{stat.label}</div>
             {stat.trend !== null && (
               <div
-                className={`${styles.statTrend} ${stat.trend >= 0 ? styles.trendUp : styles.trendDown}`}
+                className={`${styles.statTrend} ${
+                  stat.trend >= 0 ? styles.trendUp : styles.trendDown
+                }`}
               >
                 {stat.trend >= 0 ? <MdArrowUpward size={16} /> : <MdArrowDownward size={16} />}
                 {Math.abs(stat.trend)}% vs ayer

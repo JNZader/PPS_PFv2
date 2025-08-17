@@ -14,6 +14,7 @@ import { KardexTable } from '../../components/organisms/KardexTable';
 import { MovementForm } from '../../components/organisms/MovementForm';
 import { useKardexStats } from '../../hooks/useKardex';
 import { useProducts } from '../../hooks/useProducts';
+import type { Producto } from '../../types/database'; // Importar el tipo Producto
 import { formatNumber } from '../../utils/format';
 import styles from './Inventory.module.css';
 
@@ -24,8 +25,12 @@ export const Inventory = () => {
   const { data: stats } = useKardexStats(30);
 
   // Calcular productos con stock bajo
-  const lowStockProducts = products.filter((p) => p.stock <= p.stock_minimo);
-  const urgentStockProducts = products.filter((p) => p.stock === 0 || p.stock < p.stock_minimo / 2);
+  // Añadimos el tipo explícito Producto para el parámetro p
+  const lowStockProducts = products.filter((p: Producto) => p.stock <= p.stock_minimo);
+  // Añadimos el tipo explícito Producto para el parámetro p
+  const urgentStockProducts = products.filter(
+    (p: Producto) => p.stock === 0 || p.stock < p.stock_minimo / 2
+  );
 
   // Estadísticas generales
   const totalProducts = products.length;
@@ -195,7 +200,7 @@ export const Inventory = () => {
                 ✅ Todos los productos tienen stock adecuado
               </div>
             ) : (
-              lowStockProducts.map((product) => (
+              lowStockProducts.map((product: Producto) => (
                 <div key={product.id} className={styles.lowStockItem}>
                   <div className={styles.productInfo}>
                     <div className={styles.productName}>{product.descripcion}</div>
@@ -203,7 +208,7 @@ export const Inventory = () => {
                       Stock: {product.stock} / Mínimo: {product.stock_minimo}
                     </div>
                   </div>
-                  {urgentStockProducts.some((p) => p.id === product.id) && (
+                  {urgentStockProducts.some((p: Producto) => p.id === product.id) && (
                     <div className={styles.urgentBadge}>URGENTE</div>
                   )}
                 </div>

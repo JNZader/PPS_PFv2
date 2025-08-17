@@ -150,6 +150,21 @@ export type Categoria = Database['public']['Tables']['categorias']['Row'];
 export type Marca = Database['public']['Tables']['marca']['Row'];
 export type Kardex = Database['public']['Tables']['kardex']['Row'];
 
+// Interfaz para el tipo Product que se usa en MovementForm.tsx
+export interface Product {
+  id: number;
+  descripcion: string;
+  stock: number;
+  stock_minimo: number;
+  idmarca?: number;
+  codigobarras?: string | null;
+  codigointerno?: string | null;
+  precioventa?: number;
+  preciocompra?: number;
+  id_categoria?: number;
+  id_empresa?: number;
+}
+
 export interface ProductoExtendido {
   id: number;
   descripcion: string;

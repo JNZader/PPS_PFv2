@@ -1,16 +1,17 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, type Resolver, type SubmitHandler, useForm } from 'react-hook-form';
 import { MdAdd, MdInventory, MdRemove } from 'react-icons/md';
 import { z } from 'zod';
 import { useCreateMovement } from '../../../hooks/useKardex';
 import { useProducts } from '../../../hooks/useProducts';
-import type { MovementFormData } from '../../../types/database';
+import type { Producto } from '../../../types/database';
 import { Button } from '../../atoms/Button';
 import { Input } from '../../atoms/Input';
 import { Select } from '../../atoms/Select';
 import styles from './MovementForm.module.css';
 
+// Schema Zod
 const movementSchema = z.object({
   id_producto: z.coerce.number().min(1, 'Selecciona un producto'),
   tipo: z.enum(['entrada', 'salida'], { message: 'Tipo de movimiento requerido' }),
@@ -18,7 +19,8 @@ const movementSchema = z.object({
   detalle: z.string().min(3, 'El detalle debe tener al menos 3 caracteres'),
 });
 
-type MovementForm = z.infer<typeof movementSchema>;
+// Tipo inferido
+type MovementFormData = z.infer<typeof movementSchema>;
 
 interface MovementFormProps {
   onSuccess: () => void;
@@ -26,7 +28,7 @@ interface MovementFormProps {
 }
 
 export const MovementForm = ({ onSuccess, onCancel }: MovementFormProps) => {
-  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Producto | null>(null);
 
   const { data: products = [] } = useProducts();
   const createMovementMutation = useCreateMovement();
@@ -37,8 +39,9 @@ export const MovementForm = ({ onSuccess, onCancel }: MovementFormProps) => {
     watch,
     formState: { errors, isSubmitting },
     setValue,
-  } = useForm<MovementForm>({
-    resolver: zodResolver(movementSchema),
+    control,
+  } = useForm<MovementFormData>({
+    resolver: zodResolver(movementSchema) as Resolver<MovementFormData>,
     defaultValues: {
       tipo: 'entrada',
       cantidad: 1,
@@ -51,17 +54,21 @@ export const MovementForm = ({ onSuccess, onCancel }: MovementFormProps) => {
   // Actualizar producto seleccionado
   useEffect(() => {
     if (id_producto) {
-      const product = products.find((p) => p.id === Number(id_producto));
-      setSelectedProduct(product);
+      const product = products.find((p: Producto) => p.id === Number(id_producto));
+      setSelectedProduct(product || null);
+    } else {
+      setSelectedProduct(null);
     }
   }, [id_producto, products]);
 
-  const productOptions = products.map((product) => ({
-    value: product.id,
+  // ⚠️ Para <select>, value DEBE ser string; convertimos IDs a string.
+  const productOptions = products.map((product: Producto) => ({
+    value: String(product.id),
     label: `${product.descripcion} (Stock: ${product.stock})`,
   }));
 
-  const onSubmit = async (data: MovementForm) => {
+  // onSubmit tipado correctamente
+  const onSubmit: SubmitHandler<MovementFormData> = async (data) => {
     try {
       await createMovementMutation.mutateAsync(data);
       onSuccess();
@@ -70,9 +77,13 @@ export const MovementForm = ({ onSuccess, onCancel }: MovementFormProps) => {
     }
   };
 
-  const isStockLow = selectedProduct && selectedProduct.stock <= selectedProduct.stock_minimo;
+  const isStockLow = !!(selectedProduct && selectedProduct.stock <= selectedProduct.stock_minimo);
   const isStockInsufficient =
-    tipo === 'salida' && selectedProduct && cantidad > selectedProduct.stock;
+    tipo === 'salida' && selectedProduct ? cantidad > selectedProduct.stock : false;
+
+  const handleTipoChange = (value: 'entrada' | 'salida') => {
+    setValue('tipo', value, { shouldValidate: true, shouldDirty: true });
+  };
 
   return (
     <div className={styles.formContainer}>
@@ -85,41 +96,68 @@ export const MovementForm = ({ onSuccess, onCancel }: MovementFormProps) => {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
-        {/* Selector de Tipo */}
+        {/* Selector de Tipo - Usando inputs tipo radio reales */}
         <div className={styles.typeSelector}>
-          <div
+          <label
             className={`${styles.typeOption} ${tipo === 'entrada' ? styles.typeOptionSelected : ''}`}
-            onClick={() => setValue('tipo', 'entrada')}
           >
+            <input
+              type="radio"
+              name="tipo"
+              value="entrada"
+              checked={tipo === 'entrada'}
+              onChange={() => handleTipoChange('entrada')}
+              className="sr-only"
+            />
             <div className={styles.typeIcon}>
               <MdAdd size={32} />
             </div>
             <div className={styles.typeLabel}>Entrada</div>
             <div className={styles.typeDescription}>Ingreso de mercadería</div>
-          </div>
+          </label>
 
-          <div
+          <label
             className={`${styles.typeOption} ${tipo === 'salida' ? styles.typeOptionSelected : ''}`}
-            onClick={() => setValue('tipo', 'salida')}
           >
+            <input
+              type="radio"
+              name="tipo"
+              value="salida"
+              checked={tipo === 'salida'}
+              onChange={() => handleTipoChange('salida')}
+              className="sr-only"
+            />
             <div className={styles.typeIcon}>
               <MdRemove size={32} />
             </div>
             <div className={styles.typeLabel}>Salida</div>
             <div className={styles.typeDescription}>Venta o consumo</div>
-          </div>
+          </label>
         </div>
 
+        {/* Campo oculto para registrar el valor en RHF */}
         <input type="hidden" {...register('tipo')} />
 
-        {/* Producto */}
-        <Select
-          label="Producto"
-          placeholder="Selecciona un producto"
-          options={productOptions}
-          error={errors.id_producto?.message}
-          required
-          {...register('id_producto', { valueAsNumber: true })}
+        {/* Producto (Controller: adapta el onChange a ChangeEventHandler<HTMLSelectElement>) */}
+        <Controller
+          name="id_producto"
+          control={control}
+          rules={{ required: 'Selecciona un producto' }}
+          render={({ field }) => (
+            <Select
+              label="Producto"
+              placeholder="Selecciona un producto"
+              options={productOptions}
+              error={errors.id_producto?.message}
+              required
+              value={field.value != null ? String(field.value) : ''} // string para <select>
+              onChange={(e) => {
+                // e es ChangeEvent<HTMLSelectElement>
+                const val = e.target.value;
+                field.onChange(val === '' ? undefined : Number(val)); // form state guarda número
+              }}
+            />
+          )}
         />
 
         {/* Stock Actual */}
@@ -157,7 +195,7 @@ export const MovementForm = ({ onSuccess, onCancel }: MovementFormProps) => {
         {/* Validación de stock insuficiente */}
         {isStockInsufficient && (
           <div className={styles.errorAlert}>
-            ⚠️ Stock insuficiente. Stock disponible: {selectedProduct.stock} unidades
+            ⚠️ Stock insuficiente. Stock disponible: {selectedProduct?.stock} unidades
           </div>
         )}
 
@@ -177,7 +215,7 @@ export const MovementForm = ({ onSuccess, onCancel }: MovementFormProps) => {
             type="submit"
             loading={isSubmitting}
             className={styles.submitButton}
-            disabled={isStockInsufficient}
+            disabled={isSubmitting || isStockInsufficient}
           >
             Registrar {tipo === 'entrada' ? 'Entrada' : 'Salida'}
           </Button>

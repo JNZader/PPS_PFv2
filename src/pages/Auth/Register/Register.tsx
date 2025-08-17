@@ -11,7 +11,7 @@ import styles from '../Login/Login.module.css'; // Reutilizar estilos
 
 const registerSchema = z
   .object({
-    name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
+    nombres: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
     email: z.string().email('Email inválido').min(1, 'Email es requerido'),
     password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
     confirmPassword: z.string(),
@@ -21,7 +21,7 @@ const registerSchema = z
     path: ['confirmPassword'],
   });
 
-type RegisterForm = z.infer<typeof registerSchema>;
+type RegisterForm = Omit<z.infer<typeof registerSchema>, 'name'> & { nombres: string };
 
 export const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -68,9 +68,9 @@ export const Register = () => {
             type="text"
             placeholder="Tu nombre"
             leftIcon={<MdPerson size={20} />}
-            error={errors.name?.message}
+            error={errors.nombres?.message}
             required
-            {...registerField('name')}
+            {...registerField('nombres')}
           />
 
           <Input

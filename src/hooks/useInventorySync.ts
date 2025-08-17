@@ -1,15 +1,11 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
-import { useKardexMovements } from './useKardex';
-import { useProducts } from './useProducts';
 
 /**
  * Hook para mantener sincronizados los datos de productos y kardex
  */
 export const useInventorySync = () => {
   const queryClient = useQueryClient();
-  const { data: products } = useProducts();
-  const { data: movements } = useKardexMovements();
 
   // Efecto para sincronizar datos cuando hay cambios
   useEffect(() => {

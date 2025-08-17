@@ -1,0 +1,1 @@
+export { KardexTable } from './KardexTable';

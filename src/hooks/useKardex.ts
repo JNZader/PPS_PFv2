@@ -1,7 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../store/authStore';
-import { KardexService } from '../supabase/kardex';
+import {
+  createMovement,
+  deleteMovement,
+  getKardexStats,
+  getMovements,
+  searchMovements,
+} from '../supabase/kardex';
 import type { KardexFilters, MovementFormData } from '../types/database';
 
 // Hook para obtener movimientos de kardex
@@ -10,7 +16,7 @@ export const useKardexMovements = () => {
 
   return useQuery({
     queryKey: ['kardex', 'movements', user?.id],
-    queryFn: () => KardexService.getMovements(1), // Temporal: empresa ID 1
+    queryFn: () => getMovements(1), // Temporal: empresa ID 1
     enabled: !!user,
     staleTime: 2 * 60 * 1000, // 2 minutos
   });
@@ -22,7 +28,7 @@ export const useSearchMovements = (filters: KardexFilters) => {
 
   return useQuery({
     queryKey: ['kardex', 'search', filters, user?.id],
-    queryFn: () => KardexService.searchMovements(1, filters),
+    queryFn: () => searchMovements(1, filters),
     enabled: !!user && Object.values(filters).some((v) => v !== '' && v !== undefined),
     staleTime: 2 * 60 * 1000,
   });
@@ -35,7 +41,7 @@ export const useCreateMovement = () => {
 
   return useMutation({
     mutationFn: (movementData: MovementFormData) =>
-      KardexService.createMovement({
+      createMovement({
         ...movementData,
         id_empresa: 1,
         id_usuario: user?.id || 1,
@@ -60,7 +66,7 @@ export const useKardexStats = (days: number = 30) => {
 
   return useQuery({
     queryKey: ['kardex', 'stats', days, user?.id],
-    queryFn: () => KardexService.getKardexStats(1, days),
+    queryFn: () => getKardexStats(1, days),
     enabled: !!user,
     staleTime: 5 * 60 * 1000, // 5 minutos
   });
@@ -71,7 +77,7 @@ export const useDeleteMovement = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: KardexService.deleteMovement,
+    mutationFn: deleteMovement,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['kardex'] });
       queryClient.invalidateQueries({ queryKey: ['products'] });

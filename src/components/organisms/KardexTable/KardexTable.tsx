@@ -53,7 +53,8 @@ export const KardexTable = ({ onAddMovement }: KardexTableProps) => {
   const filteredMovements = movements.filter((movement: KardexExtendido) => {
     if (filters.fechaInicio && movement.fecha < filters.fechaInicio) return false;
     if (filters.fechaFin && movement.fecha > filters.fechaFin) return false;
-    if (filters.tipo && filters.tipo !== '' && movement.tipo !== filters.tipo) return false;
+    // Corregido: eliminar la doble comprobación y usar solo la verificación de valor no vacío
+    if (filters.tipo && movement.tipo !== filters.tipo) return false;
     if (
       filters.producto &&
       !movement.descripcion.toLowerCase().includes(filters.producto.toLowerCase())

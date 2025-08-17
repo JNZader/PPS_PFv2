@@ -1,51 +1,61 @@
+// src/hooks/useProducts.ts
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../store/authStore';
 import { BrandService, CategoryService } from '../supabase/categories';
 import { ProductService } from '../supabase/products';
-import type { ProductoFormData } from '../types/database';
+import type { Producto, ProductoFormData } from '../types/database';
 
-// Hook para obtener productos
+// ⚙️ ID de empresa (temporal)
+const EMPRESA_ID = 1;
+
+/* ================================
+ * Productos
+ * ================================ */
+
+// Lista de productos -> Producto[]
 export const useProducts = () => {
   const { user } = useAuthStore();
 
-  return useQuery({
+  return useQuery<Producto[]>({
     queryKey: ['products', user?.id],
-    queryFn: () => ProductService.getProducts(1), // Temporal: usar empresa ID 1
+    // Si ProductService.getProducts ya devuelve Promise<Producto[]>, el `as` no hace falta.
+    queryFn: () => ProductService.getProducts(EMPRESA_ID) as Promise<Producto[]>,
     enabled: !!user,
     staleTime: 5 * 60 * 1000, // 5 minutos
   });
 };
 
-// Hook para buscar productos
+// Búsqueda de productos -> Producto[]
 export const useProductSearch = (query: string) => {
   const { user } = useAuthStore();
 
-  return useQuery({
+  return useQuery<Producto[]>({
     queryKey: ['products', 'search', query, user?.id],
-    queryFn: () => ProductService.searchProducts(1, query),
+    queryFn: () => ProductService.searchProducts(EMPRESA_ID, query) as Promise<Producto[]>,
     enabled: !!user && query.length > 0,
     staleTime: 2 * 60 * 1000, // 2 minutos
   });
 };
 
-// Hook para obtener un producto específico
+// Detalle de producto -> Producto
 export const useProduct = (id: number) => {
-  return useQuery({
+  return useQuery<Producto>({
     queryKey: ['product', id],
-    queryFn: () => ProductService.getProductById(id),
+    queryFn: () => ProductService.getProductById(id) as Promise<Producto>,
     enabled: !!id,
   });
 };
 
-// Hook para crear producto
+// Crear producto
 export const useCreateProduct = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (productData: ProductoFormData) =>
-      ProductService.createProduct({ ...productData, id_empresa: 1 }),
+      ProductService.createProduct({ ...productData, id_empresa: EMPRESA_ID }),
     onSuccess: () => {
+      // invalidar lista y cualquier búsqueda
       queryClient.invalidateQueries({ queryKey: ['products'] });
       toast.success('Producto creado exitosamente');
     },
@@ -56,7 +66,7 @@ export const useCreateProduct = () => {
   });
 };
 
-// Hook para actualizar producto
+// Actualizar producto
 export const useUpdateProduct = () => {
   const queryClient = useQueryClient();
 
@@ -75,12 +85,12 @@ export const useUpdateProduct = () => {
   });
 };
 
-// Hook para eliminar producto
+// Eliminar producto
 export const useDeleteProduct = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ProductService.deleteProduct,
+    mutationFn: (id: number) => ProductService.deleteProduct(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       toast.success('Producto eliminado exitosamente');
@@ -92,25 +102,29 @@ export const useDeleteProduct = () => {
   });
 };
 
-// Hook para categorías
+/* ================================
+ * Categorías y Marcas
+ * ================================ */
+
+// Categorías -> tipá el retorno si tenés tipo Category
 export const useCategories = () => {
   const { user } = useAuthStore();
 
   return useQuery({
     queryKey: ['categories', user?.id],
-    queryFn: () => CategoryService.getCategories(1),
+    queryFn: () => CategoryService.getCategories(EMPRESA_ID),
     enabled: !!user,
     staleTime: 10 * 60 * 1000, // 10 minutos
   });
 };
 
-// Hook para marcas
+// Marcas -> tipá el retorno si tenés tipo Brand
 export const useBrands = () => {
   const { user } = useAuthStore();
 
   return useQuery({
     queryKey: ['brands', user?.id],
-    queryFn: () => BrandService.getBrands(1),
+    queryFn: () => BrandService.getBrands(EMPRESA_ID),
     enabled: !!user,
     staleTime: 10 * 60 * 1000, // 10 minutos
   });
