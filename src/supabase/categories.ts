@@ -1,9 +1,13 @@
+// src/supabase/categories.ts
+
 import type { Categoria, Marca } from '../types/database';
 import { supabase } from './client';
 
+// Mantener la estructura de clase pero eliminar la palabra clave "static"
+// biome-ignore lint/complexity/noStaticOnlyClass: Mantener compatibilidad con código existente
 export class CategoryService {
   // Obtener categorías
-  static async getCategories(idEmpresa: number): Promise<Categoria[]> {
+  static async getCategories(idEmpresa: number) {
     const { data, error } = await supabase
       .from('categorias')
       .select('*')
@@ -62,9 +66,10 @@ export class CategoryService {
   }
 }
 
+// biome-ignore lint/complexity/noStaticOnlyClass: Mantener compatibilidad con código existente
 export class BrandService {
   // Obtener marcas
-  static async getBrands(idEmpresa: number): Promise<Marca[]> {
+  static async getBrands(idEmpresa: number) {
     const { data, error } = await supabase
       .from('marca')
       .select('*')

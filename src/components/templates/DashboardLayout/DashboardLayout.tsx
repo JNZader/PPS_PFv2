@@ -87,8 +87,14 @@ export const DashboardLayout = () => {
   return (
     <div className={styles.layout}>
       {/* Overlay para mobile */}
-      {sidebarOpen && <div className={styles.overlay} onClick={() => setSidebarOpen(false)} />}
-
+      {sidebarOpen && (
+        <button
+          type="button"
+          className={styles.overlay}
+          onClick={() => setSidebarOpen(false)}
+          aria-label="Cerrar menú lateral"
+        />
+      )}
       {/* Sidebar */}
       <aside className={`${styles.sidebar} ${!sidebarOpen ? styles.sidebarCollapsed : ''}`}>
         <div className={styles.header}>
@@ -137,12 +143,17 @@ export const DashboardLayout = () => {
       {/* Main content */}
       <main className={styles.main}>
         <header className={styles.topbar}>
-          <button className={styles.menuButton} onClick={() => setSidebarOpen(!sidebarOpen)}>
+          <button
+            type="button"
+            className={styles.menuButton}
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+          >
             <MdMenu size={24} />
           </button>
 
           <div className={styles.userMenu}>
             <button
+              type="button"
               className={styles.themeToggle}
               onClick={toggleTheme}
               title={`Cambiar a tema ${theme === 'light' ? 'oscuro' : 'claro'}`}

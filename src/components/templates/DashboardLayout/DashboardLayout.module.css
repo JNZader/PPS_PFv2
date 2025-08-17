@@ -198,10 +198,18 @@
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 999;
     border: none;
-    /* Agregar para button */
     padding: 0;
-    /* Agregar para button */
     cursor: pointer;
-    /* Agregar para button */
+    /* Asegúrate de que el botón se muestre correctamente */
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  .overlay:focus {
+    outline: none;
   }
 }

@@ -193,6 +193,7 @@ export const ProductTable = ({ onEdit, onAdd }: ProductTableProps) => {
       cell: ({ row }) => (
         <div className={styles.actionsCell}>
           <button
+            type="button"
             className={`${styles.actionButton} ${styles.editButton}`}
             onClick={() => onEdit(row.original)}
             title="Editar producto"
@@ -200,6 +201,7 @@ export const ProductTable = ({ onEdit, onAdd }: ProductTableProps) => {
             <MdEdit size={18} />
           </button>
           <button
+            type="button"
             className={`${styles.actionButton} ${styles.deleteButton}`}
             onClick={() => handleDelete(row.original.id)}
             title="Eliminar producto"
@@ -269,7 +271,11 @@ export const ProductTable = ({ onEdit, onAdd }: ProductTableProps) => {
             />
           </div>
 
-          <button className={styles.filterToggle} onClick={() => setShowFilters(!showFilters)}>
+          <button
+            type="button"
+            className={styles.filterToggle}
+            onClick={() => setShowFilters(!showFilters)}
+          >
             <MdFilterList size={16} />
             Filtros
           </button>
@@ -391,7 +397,7 @@ export const ProductTable = ({ onEdit, onAdd }: ProductTableProps) => {
         </table>
       </div>
 
-      {table.getPageCount() > 1 && (
+      {table.getPageCount() > 0 && (
         <div className={styles.pagination}>
           <div className={styles.paginationInfo}>
             Mostrando{' '}
@@ -405,6 +411,7 @@ export const ProductTable = ({ onEdit, onAdd }: ProductTableProps) => {
 
           <div className={styles.paginationControls}>
             <button
+              type="button"
               className={`${styles.pageButton} ${!table.getCanPreviousPage() ? styles.disabled : ''}`}
               onClick={() => table.setPageIndex(0)}
               disabled={!table.getCanPreviousPage()}
@@ -414,6 +421,7 @@ export const ProductTable = ({ onEdit, onAdd }: ProductTableProps) => {
             </button>
 
             <button
+              type="button"
               className={`${styles.pageButton} ${!table.getCanPreviousPage() ? styles.disabled : ''}`}
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
@@ -422,21 +430,35 @@ export const ProductTable = ({ onEdit, onAdd }: ProductTableProps) => {
               {'<'}
             </button>
 
-            {Array.from({ length: table.getPageCount() }, (_, i) => (
-              <button
-                key={i}
-                className={`${styles.pageButton} ${table.getState().pagination.pageIndex === i ? styles.active : ''}`}
-                onClick={() => table.setPageIndex(i)}
-                aria-label={`Ir a la página ${i + 1}`}
-              >
-                {i + 1}
-              </button>
-            )).slice(
-              Math.max(0, table.getState().pagination.pageIndex - 2),
-              Math.min(table.getPageCount(), table.getState().pagination.pageIndex + 3)
-            )}
+            {/* Simplificar la paginación para evitar problemas */}
+            {(() => {
+              const pageCount = table.getPageCount();
+              const currentPage = table.getState().pagination.pageIndex;
+              const visiblePages = [];
+
+              // Mostrar solo 5 páginas como máximo
+              const startPage = Math.max(0, Math.min(currentPage - 2, pageCount - 5));
+              const endPage = Math.min(pageCount, startPage + 5);
+
+              for (let i = startPage; i < endPage; i++) {
+                visiblePages.push(
+                  <button
+                    type="button"
+                    key={`page-${i}`}
+                    className={`${styles.pageButton} ${currentPage === i ? styles.active : ''}`}
+                    onClick={() => table.setPageIndex(i)}
+                    aria-label={`Ir a la página ${i + 1}`}
+                  >
+                    {i + 1}
+                  </button>
+                );
+              }
+
+              return visiblePages;
+            })()}
 
             <button
+              type="button"
               className={`${styles.pageButton} ${!table.getCanNextPage() ? styles.disabled : ''}`}
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
@@ -446,6 +468,7 @@ export const ProductTable = ({ onEdit, onAdd }: ProductTableProps) => {
             </button>
 
             <button
+              type="button"
               className={`${styles.pageButton} ${!table.getCanNextPage() ? styles.disabled : ''}`}
               onClick={() => table.setPageIndex(table.getPageCount() - 1)}
               disabled={!table.getCanNextPage()}

@@ -1,23 +1,33 @@
+// src/supabase/products.ts
 import type { ProductoExtendido, ProductoFormData } from '../types/database';
 import { supabase } from './client';
 
+// Mantener la estructura de clase pero con métodos estáticos
+// biome-ignore lint/complexity/noStaticOnlyClass: Mantener compatibilidad con código existente
 export class ProductService {
   // Obtener todos los productos con información extendida
-  static async getProducts(idEmpresa: number): Promise<ProductoExtendido[]> {
-    const { data, error } = await supabase.rpc('mostrarproductos', {
-      _id_empresa: idEmpresa,
-    });
+  static async getProducts(idEmpresa: number) {
+    console.log('Llamando a getProducts', idEmpresa);
+    try {
+      const { data, error } = await supabase.rpc('mostrarproductos', {
+        _id_empresa: idEmpresa,
+      });
 
-    if (error) {
-      console.error('Error fetching products:', error);
-      throw error;
+      if (error) {
+        console.error('Error fetching products:', error);
+        throw error;
+      }
+
+      console.log('Productos obtenidos:', data?.length || 0);
+      return data || [];
+    } catch (err) {
+      console.error('Error completo en getProducts:', err);
+      throw err;
     }
-
-    return data || [];
   }
 
   // Buscar productos
-  static async searchProducts(idEmpresa: number, query: string): Promise<ProductoExtendido[]> {
+  static async searchProducts(idEmpresa: number, query: string) {
     const { data, error } = await supabase.rpc('buscarproductos', {
       _id_empresa: idEmpresa,
       buscador: query,
@@ -71,7 +81,7 @@ export class ProductService {
   }
 
   // Obtener producto por ID
-  static async getProductById(id: number): Promise<ProductoExtendido | null> {
+  static async getProductById(id: number) {
     const { data, error } = await supabase
       .from('productos')
       .select(`

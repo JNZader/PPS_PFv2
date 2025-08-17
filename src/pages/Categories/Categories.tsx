@@ -65,15 +65,17 @@ export const Categories = () => {
 
                   <div className={styles.itemActions}>
                     <button
+                      type="button"
                       className={`${styles.actionButton} ${styles.editButton}`}
-                      title="Editar categoría"
+                      title="Editar marca"
                       disabled
                     >
                       <MdEdit size={16} />
                     </button>
                     <button
+                      type="button"
                       className={`${styles.actionButton} ${styles.deleteButton}`}
-                      title="Eliminar categoría"
+                      title="Eliminar marca"
                       disabled
                     >
                       <MdDelete size={16} />
@@ -113,6 +115,7 @@ export const Categories = () => {
 
                   <div className={styles.itemActions}>
                     <button
+                      type="button"
                       className={`${styles.actionButton} ${styles.editButton}`}
                       title="Editar marca"
                       disabled
@@ -120,6 +123,7 @@ export const Categories = () => {
                       <MdEdit size={16} />
                     </button>
                     <button
+                      type="button"
                       className={`${styles.actionButton} ${styles.deleteButton}`}
                       title="Eliminar marca"
                       disabled
