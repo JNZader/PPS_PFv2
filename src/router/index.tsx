@@ -1,10 +1,13 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
-import { TempPage } from '../components/atoms/TempPage'; // ← Importar componente separado
+
+import { TempPage } from '../components/atoms/TempPage';
 import { ProtectedRoute } from '../components/organisms/ProtectedRoute';
 import { DashboardLayout } from '../components/templates/DashboardLayout/DashboardLayout';
 import { Login } from '../pages/Auth/Login/Login';
 import { Register } from '../pages/Auth/Register/Register';
+import { Categories } from '../pages/Categories/Categories';
 import { Dashboard } from '../pages/Dashboard/Dashboard';
+import { Products } from '../pages/Products/Products';
 
 export const router = createBrowserRouter([
   {
@@ -33,7 +36,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'products',
-        element: <TempPage title="Productos" />,
+        element: <Products />,
       },
       {
         path: 'products/new',
@@ -42,8 +45,8 @@ export const router = createBrowserRouter([
       {
         path: 'categories',
         element: (
-          <ProtectedRoute requiredRoles={['admin', 'manager']}>
-            <TempPage title="Categorías" />
+          <ProtectedRoute requiredRoles={['superadmin', 'admin']}>
+            <Categories />
           </ProtectedRoute>
         ),
       },
@@ -58,7 +61,7 @@ export const router = createBrowserRouter([
       {
         path: 'reports',
         element: (
-          <ProtectedRoute requiredRoles={['admin', 'manager']}>
+          <ProtectedRoute requiredRoles={['superadmin', 'admin']}>
             <TempPage title="Reportes" />
           </ProtectedRoute>
         ),
@@ -66,7 +69,7 @@ export const router = createBrowserRouter([
       {
         path: 'users',
         element: (
-          <ProtectedRoute requiredRoles={['admin']}>
+          <ProtectedRoute requiredRoles={['superadmin']}>
             <TempPage title="Gestión de Personal" />
           </ProtectedRoute>
         ),

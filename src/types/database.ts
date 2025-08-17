@@ -149,3 +149,32 @@ export type Producto = Database['public']['Tables']['productos']['Row'];
 export type Categoria = Database['public']['Tables']['categorias']['Row'];
 export type Marca = Database['public']['Tables']['marca']['Row'];
 export type Kardex = Database['public']['Tables']['kardex']['Row'];
+
+export interface ProductoExtendido {
+  id: number;
+  descripcion: string;
+  idmarca: number;
+  stock: number;
+  stock_minimo: number;
+  codigobarras: string | null;
+  codigointerno: string | null;
+  precioventa: number;
+  preciocompra: number;
+  id_categoria: number;
+  id_empresa: number;
+  marca: string;
+  categoria: string;
+  color: string;
+}
+
+export interface ProductoFormData {
+  descripcion: string;
+  idmarca: number;
+  stock: number;
+  stock_minimo: number;
+  codigobarras?: string;
+  codigointerno?: string;
+  precioventa: number;
+  preciocompra: number;
+  id_categoria: number;
+}

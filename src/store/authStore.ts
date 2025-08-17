@@ -29,14 +29,19 @@ export const useAuthStore = create<AuthStore>()(
           if (profile) {
             const user: User = {
               id: profile.id,
-              email: profile.email,
-              name: profile.name,
-              avatar_url: profile.avatar_url || undefined,
-              role: profile.role,
+              idauth: profile.idauth,
+              nombres: profile.nombres,
+              correo: profile.correo,
+              tipouser: profile.tipouser as 'superadmin' | 'admin' | 'empleado',
+              estado: profile.estado,
+              nro_doc: profile.nro_doc,
+              telefono: profile.telefono,
+              direccion: profile.direccion,
+              tipodoc: profile.tipodoc,
             };
 
             set({ user, isAuthenticated: true });
-            toast.success(`¡Bienvenido, ${user.name}!`);
+            toast.success(`¡Bienvenido, ${user.nombres}!`);
           }
         } catch (error) {
           console.error('Login error:', error);

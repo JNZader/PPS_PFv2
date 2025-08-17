@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { RouterProvider } from 'react-router-dom';
+
 import { router } from './router';
 import { useInitAuth } from './store/authStore';
 import { useThemeStore } from './store/themeStore';
@@ -17,12 +18,12 @@ const queryClient = new QueryClient({
 
 function App() {
   const { initAuth } = useInitAuth();
-  const { theme } = useThemeStore(); // ← Remover setTheme
+  const { theme } = useThemeStore();
 
   useEffect(() => {
     initAuth();
     document.documentElement.setAttribute('data-theme', theme);
-  }, [initAuth, theme]); // ← Remover setTheme
+  }, [initAuth, theme]);
 
   return (
     <QueryClientProvider client={queryClient}>

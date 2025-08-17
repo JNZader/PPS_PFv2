@@ -11,6 +11,7 @@ import {
   MdPeople,
 } from 'react-icons/md';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
+
 import { useAuthStore } from '../../../store/authStore';
 import { useThemeStore } from '../../../store/themeStore';
 import { Button } from '../../atoms/Button';
@@ -85,15 +86,10 @@ export const DashboardLayout = () => {
 
   return (
     <div className={styles.layout}>
-      {sidebarOpen && (
-        <button
-          type="button"
-          className={styles.overlay}
-          onClick={() => setSidebarOpen(false)}
-          aria-label="Cerrar menú lateral"
-        />
-      )}
+      {/* Overlay para mobile */}
+      {sidebarOpen && <div className={styles.overlay} onClick={() => setSidebarOpen(false)} />}
 
+      {/* Sidebar */}
       <aside className={`${styles.sidebar} ${!sidebarOpen ? styles.sidebarCollapsed : ''}`}>
         <div className={styles.header}>
           <Link to="/dashboard" className={styles.logo}>
@@ -138,19 +134,15 @@ export const DashboardLayout = () => {
         </div>
       </aside>
 
+      {/* Main content */}
       <main className={styles.main}>
         <header className={styles.topbar}>
-          <button
-            type="button"
-            className={styles.menuButton}
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-          >
+          <button className={styles.menuButton} onClick={() => setSidebarOpen(!sidebarOpen)}>
             <MdMenu size={24} />
           </button>
 
           <div className={styles.userMenu}>
             <button
-              type="button"
               className={styles.themeToggle}
               onClick={toggleTheme}
               title={`Cambiar a tema ${theme === 'light' ? 'oscuro' : 'claro'}`}

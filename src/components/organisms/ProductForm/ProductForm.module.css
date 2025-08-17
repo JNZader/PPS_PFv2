@@ -1,0 +1,145 @@
+.formContainer {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.formHeader {
+  margin-bottom: var(--spacing-2xl);
+  text-align: center;
+}
+
+.formTitle {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.formSubtitle {
+  color: var(--text-secondary);
+  font-size: var(--font-size-base);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-lg);
+}
+
+.formSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.sectionTitle {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.sectionDivider {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: var(--spacing-lg) 0;
+}
+
+.priceInputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+}
+
+.stockInputs {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--spacing-md);
+}
+
+.codeInputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+}
+
+.formActions {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: flex-end;
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--border-color);
+}
+
+.cancelButton {
+  flex: 1;
+  max-width: 150px;
+}
+
+.submitButton {
+  flex: 1;
+  max-width: 150px;
+}
+
+.errorMessage {
+  background-color: rgb(254 242 242);
+  border: 1px solid rgb(252 165 165);
+  color: rgb(185 28 28);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-lg);
+}
+
+[data-theme="dark"] .errorMessage {
+  background-color: rgb(69 26 26);
+  border-color: rgb(127 29 29);
+  color: rgb(248 113 113);
+}
+
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--spacing-2xl);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .formContainer {
+    padding: var(--spacing-md);
+    margin: var(--spacing-md);
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .priceInputs,
+  .stockInputs,
+  .codeInputs {
+    grid-template-columns: 1fr;
+  }
+
+  .formActions {
+    flex-direction: column;
+  }
+
+  .cancelButton,
+  .submitButton {
+    max-width: none;
+  }
+}

@@ -1,4 +1,82 @@
 import type { DashboardStats } from '../types/dashboard';
+import type { Categoria, Marca, ProductoExtendido } from '../types/database';
+
+// Datos mock para desarrollo
+export const mockCategories: Categoria[] = [
+  { id: 1, descripcion: 'Electrónicos', id_empresa: 1, color: '#3b82f6' },
+  { id: 2, descripcion: 'Ropa', id_empresa: 1, color: '#10b981' },
+  { id: 3, descripcion: 'Hogar', id_empresa: 1, color: '#f59e0b' },
+  { id: 4, descripcion: 'Deportes', id_empresa: 1, color: '#8b5cf6' },
+];
+
+export const mockBrands: Marca[] = [
+  { id: 1, descripcion: 'Apple', id_empresa: 1 },
+  { id: 2, descripcion: 'Samsung', id_empresa: 1 },
+  { id: 3, descripcion: 'Sony', id_empresa: 1 },
+  { id: 4, descripcion: 'Nike', id_empresa: 1 },
+  { id: 5, descripcion: 'Adidas', id_empresa: 1 },
+];
+
+export const mockProducts: ProductoExtendido[] = [
+  {
+    id: 1,
+    descripcion: 'iPhone 15 Pro Max 256GB',
+    idmarca: 1,
+    stock: 15,
+    stock_minimo: 5,
+    codigobarras: '1234567890123',
+    codigointerno: 'PROD-001',
+    precioventa: 1299999,
+    preciocompra: 999999,
+    id_categoria: 1,
+    id_empresa: 1,
+    marca: 'Apple',
+    categoria: 'Electrónicos',
+    color: '#3b82f6',
+  },
+  {
+    id: 2,
+    descripcion: 'Samsung Galaxy S24 Ultra',
+    idmarca: 2,
+    stock: 8,
+    stock_minimo: 3,
+    codigobarras: '2345678901234',
+    codigointerno: 'PROD-002',
+    precioventa: 1199999,
+    preciocompra: 899999,
+    id_categoria: 1,
+    id_empresa: 1,
+    marca: 'Samsung',
+    categoria: 'Electrónicos',
+    color: '#3b82f6',
+  },
+  {
+    id: 3,
+    descripcion: 'Nike Air Max 270',
+    idmarca: 4,
+    stock: 2,
+    stock_minimo: 5,
+    codigobarras: '3456789012345',
+    codigointerno: 'PROD-003',
+    precioventa: 89999,
+    preciocompra: 65999,
+    id_categoria: 4,
+    id_empresa: 1,
+    marca: 'Nike',
+    categoria: 'Deportes',
+    color: '#8b5cf6',
+  },
+];
+
+// Hook mock para productos
+export const useMockProducts = () => {
+  return {
+    data: mockProducts,
+    isLoading: false,
+    error: null,
+    refetch: () => Promise.resolve(),
+  };
+};
 
 // Simular datos del dashboard
 export const mockDashboardStats: DashboardStats = {

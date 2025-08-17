@@ -12,10 +12,10 @@ export const login = async (credentials: LoginCredentials) => {
 
   if (data.user) {
     const usuario = await getUsuario(data.user.id);
-    return { user: data.user, usuario };
+    return { user: data.user, profile: usuario };
   }
 
-  return { user: data.user, usuario: null };
+  return { user: data.user, profile: null };
 };
 
 // Registro

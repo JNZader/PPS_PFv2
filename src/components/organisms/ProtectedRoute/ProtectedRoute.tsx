@@ -40,7 +40,8 @@ export const ProtectedRoute = ({
   }
 
   // Verificar roles si son requeridos
-  if (requiredRoles && !requiredRoles.includes(user.role)) {
+  // ✅ Cambiar user.role por user.tipouser
+  if (requiredRoles && !requiredRoles.includes(user.tipouser)) {
     return (
       <div
         style={{
