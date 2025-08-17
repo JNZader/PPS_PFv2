@@ -7,6 +7,7 @@ import { Login } from '../pages/Auth/Login/Login';
 import { Register } from '../pages/Auth/Register/Register';
 import { Categories } from '../pages/Categories/Categories';
 import { Dashboard } from '../pages/Dashboard/Dashboard';
+import { Inventory } from '../pages/Inventory/Inventory'; // ← Nueva importación
 import { Products } from '../pages/Products/Products';
 
 export const router = createBrowserRouter([
@@ -51,12 +52,8 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: 'inventory',
-        element: <TempPage title="Kardex de Inventario" />,
-      },
-      {
-        path: 'inventory/new',
-        element: <TempPage title="Nuevo Movimiento" />,
+        path: 'inventory', // ← Nueva ruta
+        element: <Inventory />,
       },
       {
         path: 'reports',

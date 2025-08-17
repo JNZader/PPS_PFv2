@@ -178,3 +178,31 @@ export interface ProductoFormData {
   preciocompra: number;
   id_categoria: number;
 }
+
+// ✅ NUEVOS TIPOS PARA KARDEX
+export interface KardexExtendido {
+  id: number;
+  descripcion: string; // nombre del producto
+  fecha: string;
+  cantidad: number;
+  tipo: string; // 'entrada' | 'salida'
+  detalle: string;
+  nombres: string; // nombre del usuario
+  stock: number; // stock resultante
+  estado: number;
+}
+
+export interface MovementFormData {
+  id_producto: number;
+  tipo: 'entrada' | 'salida';
+  cantidad: number;
+  detalle: string;
+}
+
+export interface KardexFilters {
+  fechaInicio?: string;
+  fechaFin?: string;
+  tipo?: 'entrada' | 'salida' | '';
+  producto?: string;
+  usuario?: string;
+}

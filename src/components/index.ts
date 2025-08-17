@@ -11,8 +11,11 @@ export { TempPage } from './atoms/TempPage';
 
 // Molecules
 export { Modal } from './molecules/Modal';
-export { ProductForm } from './organisms/ProductForm';
+
 // Organisms
+export { KardexTable } from './organisms/KardexTable'; // ← Nuevo
+export { MovementForm } from './organisms/MovementForm'; // ← Nuevo
+export { ProductForm } from './organisms/ProductForm';
 export { ProductTable } from './organisms/ProductTable';
 export { ProtectedRoute } from './organisms/ProtectedRoute';
 

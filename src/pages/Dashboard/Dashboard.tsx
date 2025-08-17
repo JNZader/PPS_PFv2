@@ -23,6 +23,8 @@ import {
 import { Alert } from '../../components/atoms/Alert';
 import { Badge } from '../../components/atoms/Badge';
 import { Loading } from '../../components/atoms/Loading';
+import { useKardexStats } from '../../hooks/useKardex'; // ← Nuevo import
+import { useProducts } from '../../hooks/useProducts';
 import { useDashboardData } from '../../services/mockData';
 import { useAuthStore } from '../../store/authStore';
 import { formatCurrency, formatNumber, formatRelativeTime } from '../../utils/format';
@@ -30,6 +32,8 @@ import styles from './Dashboard.module.css';
 
 export const Dashboard = () => {
   const { user } = useAuthStore();
+  const { data: products = [] } = useProducts(); // ← Usar datos reales
+  const { data: kardexStats } = useKardexStats(7); // ← Últimos 7 días
   const { data, isLoading, error, refetch } = useDashboardData();
 
   if (isLoading) {
@@ -46,31 +50,35 @@ export const Dashboard = () => {
     );
   }
 
+  // Calcular estadísticas reales
+  const lowStockProducts = products.filter((p) => p.stock <= p.stock_minimo);
+  const totalValue = products.reduce((sum, p) => sum + p.stock * p.precioventa, 0);
+
   const stats = [
     {
       label: 'Total Productos',
-      value: formatNumber(data.totalProducts),
+      value: formatNumber(products.length),
       icon: <MdInventory size={24} />,
       color: '#3b82f6',
       trend: null,
     },
     {
       label: 'Stock Bajo',
-      value: formatNumber(data.lowStockProducts),
+      value: formatNumber(lowStockProducts.length),
       icon: <MdWarning size={24} />,
       color: '#f59e0b',
       trend: null,
     },
     {
-      label: 'Ventas Hoy',
-      value: formatNumber(data.todaySales),
+      label: 'Entradas (7 días)',
+      value: formatNumber(kardexStats?.totalEntradas || 0),
       icon: <MdShoppingCart size={24} />,
       color: '#10b981',
-      trend: data.salesTrend,
+      trend: null,
     },
     {
       label: 'Valor Total',
-      value: formatCurrency(data.totalValue),
+      value: formatCurrency(totalValue),
       icon: <MdTrendingUp size={24} />,
       color: '#8b5cf6',
       trend: null,
@@ -85,7 +93,7 @@ export const Dashboard = () => {
       description: 'Registrar nuevo producto',
     },
     {
-      to: '/inventory/new',
+      to: '/inventory', // ← Cambiar ruta
       icon: <MdInventory size={20} />,
       title: 'Movimiento de Stock',
       description: 'Entrada o salida de inventario',
@@ -110,6 +118,39 @@ export const Dashboard = () => {
     return true;
   });
 
+  // Preparar datos del gráfico con datos reales de kardex
+  const chartData = kardexStats
+    ? [
+        ...kardexStats.entradasPorDia.map((item) => ({
+          date: item.fecha,
+          sales: 0, // Mantener compatibilidad
+          entries: item.cantidad,
+        })),
+        ...kardexStats.salidasPorDia.map((item) => {
+          const existing = kardexStats.entradasPorDia.find((e) => e.fecha === item.fecha);
+          return {
+            date: item.fecha,
+            sales: item.cantidad,
+            entries: existing?.cantidad || 0,
+          };
+        }),
+      ]
+        .reduce(
+          (acc, curr) => {
+            const existing = acc.find((item) => item.date === curr.date);
+            if (existing) {
+              existing.sales = Math.max(existing.sales, curr.sales);
+              existing.entries = Math.max(existing.entries, curr.entries);
+            } else {
+              acc.push(curr);
+            }
+            return acc;
+          },
+          [] as Array<{ date: string; sales: number; entries: number }>
+        )
+        .sort((a, b) => a.date.localeCompare(b.date))
+    : data.salesChart;
+
   return (
     <div className={styles.dashboard}>
       <div className={styles.header}>
@@ -129,6 +170,16 @@ export const Dashboard = () => {
           Última actualización: {formatRelativeTime(new Date())}
         </div>
       </div>
+
+      {/* Alerta de stock bajo */}
+      {lowStockProducts.length > 0 && (
+        <Alert variant="warning" title={`${lowStockProducts.length} productos con stock bajo`}>
+          Algunos productos necesitan reabastecimiento.
+          <Link to="/inventory" style={{ marginLeft: '8px', color: 'inherit', fontWeight: 'bold' }}>
+            Ver inventario →
+          </Link>
+        </Alert>
+      )}
 
       <div className={styles.statsGrid}>
         {stats.map((stat) => (
@@ -156,11 +207,11 @@ export const Dashboard = () => {
         <div className={styles.chartSection}>
           <h2 className={styles.sectionTitle}>
             <MdTrendingUp size={24} />
-            Ventas de la Semana
+            Movimientos de la Semana
           </h2>
           <div className={styles.chartContainer}>
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={data.salesChart}>
+              <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis
                   dataKey="date"
@@ -171,20 +222,27 @@ export const Dashboard = () => {
                     })
                   }
                 />
-                <YAxis tickFormatter={(value) => formatCurrency(value)} />
+                <YAxis tickFormatter={(value) => formatNumber(value)} />
                 <Tooltip
                   labelFormatter={(date) => new Date(date).toLocaleDateString('es-AR')}
                   formatter={(value, name) => [
-                    name === 'sales' ? formatCurrency(Number(value)) : value,
-                    name === 'sales' ? 'Ventas' : 'Órdenes',
+                    formatNumber(Number(value)),
+                    name === 'sales' ? 'Salidas' : name === 'entries' ? 'Entradas' : 'Movimientos',
                   ]}
                 />
                 <Line
                   type="monotone"
-                  dataKey="sales"
-                  stroke="#3b82f6"
+                  dataKey="entries"
+                  stroke="#10b981"
                   strokeWidth={3}
-                  dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
+                  dot={{ fill: '#10b981', strokeWidth: 2, r: 4 }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="sales"
+                  stroke="#ef4444"
+                  strokeWidth={3}
+                  dot={{ fill: '#ef4444', strokeWidth: 2, r: 4 }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -193,21 +251,39 @@ export const Dashboard = () => {
 
         <div className={styles.categoriesSection}>
           <h2 className={styles.sectionTitle}>
-            <MdCategory size={24} />
-            Top Categorías
+            <MdWarning size={24} />
+            Productos con Stock Bajo
           </h2>
-          {data.topCategories.map((category) => (
-            <div key={category.name} className={styles.categoryItem}>
+          {lowStockProducts.slice(0, 5).map((product) => (
+            <div key={product.id} className={styles.categoryItem}>
               <div className={styles.categoryInfo}>
-                <div className={styles.categoryName}>{category.name}</div>
-                <div className={styles.categoryStats}>{formatNumber(category.count)} productos</div>
+                <div className={styles.categoryName}>{product.descripcion}</div>
+                <div className={styles.categoryStats}>
+                  Stock: {product.stock} / Mínimo: {product.stock_minimo}
+                </div>
               </div>
               <div className={styles.categoryValue}>
-                <div className={styles.categoryAmount}>{formatCurrency(category.value)}</div>
-                <div className={styles.categoryPercentage}>{category.percentage}%</div>
+                {product.stock === 0 ? (
+                  <Badge variant="error">SIN STOCK</Badge>
+                ) : product.stock < product.stock_minimo / 2 ? (
+                  <Badge variant="warning">CRÍTICO</Badge>
+                ) : (
+                  <Badge variant="warning">BAJO</Badge>
+                )}
               </div>
             </div>
           ))}
+          {lowStockProducts.length === 0 && (
+            <div
+              style={{
+                textAlign: 'center',
+                color: 'var(--text-secondary)',
+                padding: 'var(--spacing-lg)',
+              }}
+            >
+              ✅ Todos los productos tienen stock adecuado
+            </div>
+          )}
         </div>
       </div>
 
