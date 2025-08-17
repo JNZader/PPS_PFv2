@@ -4,7 +4,7 @@ import { Toaster } from 'react-hot-toast';
 import { RouterProvider } from 'react-router-dom';
 
 import { router } from './router';
-import { useInitAuth } from './store/authStore';
+// Ya no se necesita useInitAuth
 import { useThemeStore } from './store/themeStore';
 
 const queryClient = new QueryClient({
@@ -17,13 +17,12 @@ const queryClient = new QueryClient({
 });
 
 function App() {
-  const { initAuth } = useInitAuth();
   const { theme } = useThemeStore();
 
+  // El useEffect ahora solo se encarga del tema
   useEffect(() => {
-    initAuth();
     document.documentElement.setAttribute('data-theme', theme);
-  }, [initAuth, theme]);
+  }, [theme]);
 
   return (
     <QueryClientProvider client={queryClient}>

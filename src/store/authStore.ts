@@ -18,7 +18,7 @@ export const useAuthStore = create<AuthStore>()(
     (set) => ({
       user: null,
       isAuthenticated: false,
-      isLoading: true,
+      isLoading: true, // El estado inicial es 'cargando'
 
       login: async (credentials: LoginCredentials) => {
         try {
@@ -83,10 +83,7 @@ export const useAuthStore = create<AuthStore>()(
 
       checkAuth: async () => {
         try {
-          set({ isLoading: true });
-
           const user = await getCurrentUser();
-
           if (user) {
             set({ user, isAuthenticated: true });
           } else {
@@ -101,7 +98,8 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       setUser: (user: User | null) => {
-        set({ user, isAuthenticated: !!user });
+        // Al recibir un usuario del listener, nos aseguramos de que isLoading pase a false.
+        set({ user, isAuthenticated: !!user, isLoading: false });
       },
 
       setLoading: (loading: boolean) => {
@@ -118,17 +116,11 @@ export const useAuthStore = create<AuthStore>()(
   )
 );
 
-export const useInitAuth = () => {
-  const checkAuth = useAuthStore((state) => state.checkAuth);
-  const setUser = useAuthStore((state) => state.setUser);
+// --- INICIALIZACIÓN AUTOMÁTICA ---
+// 1. Inicia la verificación de la sesión tan pronto como se carga la app.
+useAuthStore.getState().checkAuth();
 
-  const initAuth = async () => {
-    await checkAuth();
-
-    onAuthStateChange((user) => {
-      setUser(user);
-    });
-  };
-
-  return { initAuth };
-};
+// 2. Escucha cambios de autenticación de Supabase para mantener el store sincronizado.
+onAuthStateChange((user) => {
+  useAuthStore.getState().setUser(user);
+});
