@@ -4,8 +4,13 @@ import toast from 'react-hot-toast';
 import { useAuthStore } from '../store/authStore';
 import { BrandService, CategoryService } from '../supabase/categories';
 import { ProductService } from '../supabase/products';
-// ✅ CORRECCIÓN: Importamos ProductoExtendido
-import type { Producto, ProductoExtendido, ProductoFormData } from '../types/database';
+import type {
+  BrandFormData,
+  CategoryFormData,
+  Producto,
+  ProductoExtendido,
+  ProductoFormData,
+} from '../types/database';
 
 // ⚙️ ID de empresa (temporal)
 const EMPRESA_ID = 1;
@@ -14,8 +19,6 @@ const EMPRESA_ID = 1;
  * Productos
  * ================================ */
 
-// Lista de productos -> ProductoExtendido[]
-// ✅ CORRECCIÓN: Se cambia el tipo de retorno a ProductoExtendido[]
 export const useProducts = () => {
   const { user } = useAuthStore();
 
@@ -23,12 +26,10 @@ export const useProducts = () => {
     queryKey: ['products', user?.id],
     queryFn: () => ProductService.getProducts(EMPRESA_ID) as Promise<ProductoExtendido[]>,
     enabled: !!user,
-    staleTime: 5 * 60 * 1000, // 5 minutos
+    staleTime: 5 * 60 * 1000,
   });
 };
 
-// Búsqueda de productos -> ProductoExtendido[]
-// ✅ CORRECCIÓN: Se cambia el tipo de retorno a ProductoExtendido[]
 export const useProductSearch = (query: string) => {
   const { user } = useAuthStore();
 
@@ -36,11 +37,10 @@ export const useProductSearch = (query: string) => {
     queryKey: ['products', 'search', query, user?.id],
     queryFn: () => ProductService.searchProducts(EMPRESA_ID, query) as Promise<ProductoExtendido[]>,
     enabled: !!user && query.length > 0,
-    staleTime: 2 * 60 * 1000, // 2 minutos
+    staleTime: 2 * 60 * 1000,
   });
 };
 
-// Detalle de producto -> Producto
 export const useProduct = (id: number) => {
   return useQuery<Producto>({
     queryKey: ['product', id],
@@ -49,7 +49,6 @@ export const useProduct = (id: number) => {
   });
 };
 
-// Crear producto
 export const useCreateProduct = () => {
   const queryClient = useQueryClient();
 
@@ -57,7 +56,6 @@ export const useCreateProduct = () => {
     mutationFn: (productData: ProductoFormData) =>
       ProductService.createProduct({ ...productData, id_empresa: EMPRESA_ID }),
     onSuccess: () => {
-      // invalidar lista y cualquier búsqueda
       queryClient.invalidateQueries({ queryKey: ['products'] });
       toast.success('Producto creado exitosamente');
     },
@@ -68,7 +66,6 @@ export const useCreateProduct = () => {
   });
 };
 
-// Actualizar producto
 export const useUpdateProduct = () => {
   const queryClient = useQueryClient();
 
@@ -87,7 +84,6 @@ export const useUpdateProduct = () => {
   });
 };
 
-// Eliminar producto
 export const useDeleteProduct = () => {
   const queryClient = useQueryClient();
 
@@ -108,7 +104,6 @@ export const useDeleteProduct = () => {
  * Categorías y Marcas
  * ================================ */
 
-// Categorías -> tipá el retorno si tenés tipo Category
 export const useCategories = () => {
   const { user } = useAuthStore();
 
@@ -116,11 +111,58 @@ export const useCategories = () => {
     queryKey: ['categories', user?.id],
     queryFn: () => CategoryService.getCategories(EMPRESA_ID),
     enabled: !!user,
-    staleTime: 10 * 60 * 1000, // 10 minutos
+    staleTime: 10 * 60 * 1000,
   });
 };
 
-// Marcas -> tipá el retorno si tenés tipo Brand
+export const useCreateCategory = () => {
+  const queryClient = useQueryClient();
+  const { user } = useAuthStore();
+
+  return useMutation({
+    mutationFn: (categoryData: CategoryFormData) =>
+      CategoryService.createCategory({ ...categoryData, id_empresa: user?.id_empresa ?? 0 }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      toast.success('Categoría creada exitosamente');
+    },
+    onError: (error) => {
+      toast.error(`Error al crear la categoría: ${error.message}`);
+    },
+  });
+};
+
+export const useUpdateCategory = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Partial<CategoryFormData> }) =>
+      CategoryService.updateCategory(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      toast.success('Categoría actualizada exitosamente');
+    },
+    onError: (error) => {
+      toast.error(`Error al actualizar la categoría: ${error.message}`);
+    },
+  });
+};
+
+export const useDeleteCategory = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => CategoryService.deleteCategory(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      toast.success('Categoría eliminada exitosamente');
+    },
+    onError: (error) => {
+      toast.error(`Error al eliminar la categoría: ${error.message}`);
+    },
+  });
+};
+
 export const useBrands = () => {
   const { user } = useAuthStore();
 
@@ -128,6 +170,54 @@ export const useBrands = () => {
     queryKey: ['brands', user?.id],
     queryFn: () => BrandService.getBrands(EMPRESA_ID),
     enabled: !!user,
-    staleTime: 10 * 60 * 1000, // 10 minutos
+    staleTime: 10 * 60 * 1000,
+  });
+};
+
+export const useCreateBrand = () => {
+  const queryClient = useQueryClient();
+  const { user } = useAuthStore();
+
+  return useMutation({
+    mutationFn: (brandData: BrandFormData) =>
+      BrandService.createBrand({ ...brandData, id_empresa: user?.id_empresa ?? 0 }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['brands'] });
+      toast.success('Marca creada exitosamente');
+    },
+    onError: (error) => {
+      toast.error(`Error al crear la marca: ${error.message}`);
+    },
+  });
+};
+
+export const useUpdateBrand = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Partial<BrandFormData> }) =>
+      BrandService.updateBrand(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['brands'] });
+      toast.success('Marca actualizada exitosamente');
+    },
+    onError: (error) => {
+      toast.error(`Error al actualizar la marca: ${error.message}`);
+    },
+  });
+};
+
+export const useDeleteBrand = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => BrandService.deleteBrand(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['brands'] });
+      toast.success('Marca eliminada exitosamente');
+    },
+    onError: (error) => {
+      toast.error(`Error al eliminar la marca: ${error.message}`);
+    },
   });
 };

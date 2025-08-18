@@ -22,8 +22,8 @@ export const useUsers = () => {
 
   return useQuery({
     queryKey: ['users', idEmpresa],
-    queryFn: () => getUsers(idEmpresa!),
-    enabled: !!idEmpresa, // La query solo se ejecuta si tenemos un id de empresa
+    queryFn: () => (idEmpresa ? getUsers(idEmpresa) : Promise.resolve([])),
+    enabled: !!idEmpresa,
     staleTime: 2 * 60 * 1000,
   });
 };
@@ -35,7 +35,7 @@ export const useSearchUsers = (filters: UserFilters) => {
 
   return useQuery({
     queryKey: ['users', 'search', filters, idEmpresa],
-    queryFn: () => searchUsers(idEmpresa!, filters),
+    queryFn: () => (idEmpresa ? searchUsers(idEmpresa, filters) : Promise.resolve([])),
     enabled: !!idEmpresa && Object.values(filters).some((v) => v !== '' && v !== undefined),
     staleTime: 2 * 60 * 1000,
   });
@@ -49,7 +49,7 @@ export const useCreateUser = () => {
 
   return useMutation({
     mutationFn: (userData: Omit<UserFormData, 'id_empresa'>) =>
-      createUser({ ...userData, id_empresa: idEmpresa! }),
+      createUser({ ...userData, id_empresa: idEmpresa ?? 0 }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
       toast.success('Usuario creado exitosamente');
@@ -131,7 +131,7 @@ export const useUsersStats = () => {
 
   return useQuery({
     queryKey: ['users', 'stats', idEmpresa],
-    queryFn: () => getUsersStats(idEmpresa!),
+    queryFn: () => (idEmpresa ? getUsersStats(idEmpresa) : Promise.resolve(null)),
     enabled: !!idEmpresa,
     staleTime: 5 * 60 * 1000,
   });
@@ -144,7 +144,7 @@ export const useInviteUser = () => {
   const idEmpresa = user?.id_empresa;
 
   return useMutation({
-    mutationFn: (invitation: UserInvitation) => inviteUser(invitation, idEmpresa!),
+    mutationFn: (invitation: UserInvitation) => inviteUser(invitation, idEmpresa ?? 0),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
       toast.success('Invitación enviada exitosamente');

@@ -223,3 +223,12 @@ export interface KardexFilters {
   producto?: string;
   usuario?: string;
 }
+
+export interface CategoryFormData {
+  descripcion: string;
+  color: string;
+}
+
+export interface BrandFormData {
+  descripcion: string;
+}
