@@ -30,9 +30,9 @@ import { useAuthStore } from '../../store/authStore';
 import { formatCurrency, formatNumber, formatRelativeTime } from '../../utils/format';
 import styles from './Dashboard.module.css';
 
-export const Dashboard = () => {
+// CAMBIO: Se quita el 'export' de aquí
+const Dashboard = () => {
   const { user } = useAuthStore();
-  // ⬇️ Ahora products es Producto[] gracias al hook tipado
   const { data: products = [] } = useProducts();
   const { data: kardexStats } = useKardexStats(7);
   const { data, isLoading, error, refetch } = useDashboardData();
@@ -342,3 +342,6 @@ export const Dashboard = () => {
     </div>
   );
 };
+
+// CAMBIO: Se añade la exportación por defecto al final
+export default Dashboard;

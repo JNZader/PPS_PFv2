@@ -14,25 +14,21 @@ import { KardexTable } from '../../components/organisms/KardexTable';
 import { MovementForm } from '../../components/organisms/MovementForm';
 import { useKardexStats } from '../../hooks/useKardex';
 import { useProducts } from '../../hooks/useProducts';
-import type { Producto } from '../../types/database'; // Importar el tipo Producto
+import type { Producto } from '../../types/database';
 import { formatNumber } from '../../utils/format';
 import styles from './Inventory.module.css';
 
-export const Inventory = () => {
+const Inventory = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
 
   const { data: products = [] } = useProducts();
   const { data: stats } = useKardexStats(30);
 
-  // Calcular productos con stock bajo
-  // Añadimos el tipo explícito Producto para el parámetro p
   const lowStockProducts = products.filter((p: Producto) => p.stock <= p.stock_minimo);
-  // Añadimos el tipo explícito Producto para el parámetro p
   const urgentStockProducts = products.filter(
     (p: Producto) => p.stock === 0 || p.stock < p.stock_minimo / 2
   );
 
-  // Estadísticas generales
   const totalProducts = products.length;
 
   const handleAddMovement = () => {
@@ -47,7 +43,6 @@ export const Inventory = () => {
     setIsFormOpen(false);
   };
 
-  // Preparar datos para el gráfico
   const chartData = stats
     ? [
         ...stats.entradasPorDia.map((item) => ({
@@ -82,7 +77,6 @@ export const Inventory = () => {
 
   return (
     <div className={styles.inventoryPage}>
-      {/* Header */}
       <div className={styles.pageHeader}>
         <h1 className={styles.pageTitle}>
           <MdInventory size={32} />
@@ -93,7 +87,6 @@ export const Inventory = () => {
         </p>
       </div>
 
-      {/* Estadísticas Rápidas */}
       <div className={styles.quickStats}>
         <div className={styles.statCard}>
           <div className={styles.statHeader}>
@@ -136,7 +129,6 @@ export const Inventory = () => {
         </div>
       </div>
 
-      {/* Gráficos y Alertas */}
       <div className={styles.chartsContainer}>
         <div className={styles.chartSection}>
           <h2 className={styles.sectionTitle}>
@@ -218,15 +210,15 @@ export const Inventory = () => {
         </div>
       </div>
 
-      {/* Tabla de Kardex */}
       <div className={styles.tableContainer}>
         <KardexTable onAddMovement={handleAddMovement} />
       </div>
 
-      {/* Modal de Formulario */}
       <Modal isOpen={isFormOpen} onClose={handleFormCancel} title="Nuevo Movimiento" size="medium">
         <MovementForm onSuccess={handleFormSuccess} onCancel={handleFormCancel} />
       </Modal>
     </div>
   );
 };
+
+export default Inventory;

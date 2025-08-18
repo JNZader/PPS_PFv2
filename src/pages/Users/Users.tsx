@@ -6,7 +6,7 @@ import { UserTable } from '../../components/organisms/UserTable';
 import type { UserWithStats } from '../../types/auth';
 import styles from './Users.module.css';
 
-export const Users = () => {
+const Users = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<UserWithStats | null>(null);
 
@@ -58,3 +58,5 @@ export const Users = () => {
     </div>
   );
 };
+
+export default Users;

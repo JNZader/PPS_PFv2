@@ -27,7 +27,7 @@ import type {
 import { formatCurrency, formatNumber, formatRelativeTime } from '../../utils/format';
 import styles from './Reports.module.css';
 
-export const Reports = () => {
+const Reports = () => {
   const [filters, setFilters] = useState<IReportFilters>({
     tipoReporte: 'stock-actual',
   });
@@ -37,7 +37,6 @@ export const Reports = () => {
 
   const { data: products = [], isLoading } = useProducts();
 
-  // Calcular estadísticas rápidas
   const stats = {
     totalProducts: products.length,
     lowStockProducts: products.filter((p) => p.stock <= p.stock_minimo).length,
@@ -45,7 +44,6 @@ export const Reports = () => {
     outOfStock: products.filter((p) => p.stock === 0).length,
   };
 
-  // Configuración de reportes disponibles
   const availableReports = [
     {
       type: 'stock' as const,
@@ -80,8 +78,9 @@ export const Reports = () => {
   const handleGenerateReport = async (type: ReportType) => {
     try {
       setIsGenerating(true);
-      const data = await availableReports.find((r) => r.type === type)?.generator();
-      if (data) {
+      const reportConfig = availableReports.find((r) => r.type === type);
+      if (reportConfig) {
+        const data = await reportConfig.generator();
         setReportData(data);
         setLastGenerated((prev) => ({
           ...prev,
@@ -139,7 +138,6 @@ export const Reports = () => {
 
   return (
     <div className={styles.reportsPage}>
-      {/* Header */}
       <div className={styles.pageHeader}>
         <h1 className={styles.pageTitle}>
           <MdAssessment size={32} />
@@ -150,7 +148,6 @@ export const Reports = () => {
         </p>
       </div>
 
-      {/* Estadísticas Rápidas */}
       <div className={styles.quickStats}>
         <div className={styles.statCard}>
           <div className={styles.statIcon} style={{ backgroundColor: '#3b82f6' }}>
@@ -185,7 +182,6 @@ export const Reports = () => {
         </div>
       </div>
 
-      {/* Alertas */}
       {stats.lowStockProducts > 0 && (
         <Alert variant="warning" title={`${stats.lowStockProducts} productos con stock bajo`}>
           Te recomendamos generar el reporte de stock bajo para identificar los productos que
@@ -199,7 +195,6 @@ export const Reports = () => {
         </Alert>
       )}
 
-      {/* Filtros */}
       <div className={styles.filtersSection}>
         <h2 className={styles.sectionTitle}>
           <MdFilterList size={24} />
@@ -214,7 +209,6 @@ export const Reports = () => {
         />
       </div>
 
-      {/* Grid de Reportes */}
       <div className={styles.reportsGrid}>
         {availableReports.map((report) => (
           <ReportCard
@@ -224,14 +218,13 @@ export const Reports = () => {
             description={report.description}
             icon={report.icon}
             lastGenerated={lastGenerated[report.type]}
-            onGeneratePDF={() => handleGenerateReport(report.type)}
-            onGenerateCSV={() => handleGenerateReport(report.type)}
-            onPreview={() => handleGenerateReport(report.type)}
+            onGeneratePDF={() => handleGenerateReport(report.type as ReportType)}
+            onGenerateCSV={() => handleGenerateReport(report.type as ReportType)}
+            onPreview={() => handleGenerateReport(report.type as ReportType)}
           />
         ))}
       </div>
 
-      {/* Visor de reportes */}
       <div className={styles.previewSection}>
         <h2 className={styles.sectionTitle}>
           <MdPreview size={24} />
@@ -240,7 +233,6 @@ export const Reports = () => {
         <ReportPreview data={reportData} isLoading={isGenerating} />
       </div>
 
-      {/* Reportes Recientes */}
       <div className={styles.recentSection}>
         <h2 className={styles.sectionTitle}>
           <MdDownload size={24} />
@@ -284,7 +276,6 @@ export const Reports = () => {
         )}
       </div>
 
-      {/* Sección de Ayuda */}
       <div className={styles.helpSection}>
         <h3 className={styles.helpTitle}>
           <MdHelpOutline size={20} />
@@ -324,3 +315,5 @@ export const Reports = () => {
     </div>
   );
 };
+
+export default Reports;

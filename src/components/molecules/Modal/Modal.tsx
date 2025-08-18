@@ -69,7 +69,7 @@ export const Modal = ({
               type="button"
               className={styles.closeButton}
               onClick={onClose}
-              aria-label="Cerrar modal"
+              aria-label={`Cerrar modal de ${title || 'diálogo'}`}
             >
               <MdClose size={24} />
             </button>

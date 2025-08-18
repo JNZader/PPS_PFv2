@@ -13,31 +13,30 @@ import {
   toggleUserStatus,
   updateUser,
 } from '../supabase/users';
-import type { UserFilters, UserFormData } from '../types/auth';
-
-// ID de empresa temporal
-const EMPRESA_ID = 1;
+import type { UserFilters, UserFormData, UserInvitation } from '../types/auth';
 
 // Hook para obtener todos los usuarios
 export const useUsers = () => {
   const { user } = useAuthStore();
+  const idEmpresa = user?.id_empresa;
 
   return useQuery({
-    queryKey: ['users', user?.id],
-    queryFn: () => getUsers(EMPRESA_ID),
-    enabled: !!user,
-    staleTime: 2 * 60 * 1000, // 2 minutos
+    queryKey: ['users', idEmpresa],
+    queryFn: () => getUsers(idEmpresa!),
+    enabled: !!idEmpresa, // La query solo se ejecuta si tenemos un id de empresa
+    staleTime: 2 * 60 * 1000,
   });
 };
 
 // Hook para buscar usuarios con filtros
 export const useSearchUsers = (filters: UserFilters) => {
   const { user } = useAuthStore();
+  const idEmpresa = user?.id_empresa;
 
   return useQuery({
-    queryKey: ['users', 'search', filters, user?.id],
-    queryFn: () => searchUsers(EMPRESA_ID, filters),
-    enabled: !!user && Object.values(filters).some((v) => v !== '' && v !== undefined),
+    queryKey: ['users', 'search', filters, idEmpresa],
+    queryFn: () => searchUsers(idEmpresa!, filters),
+    enabled: !!idEmpresa && Object.values(filters).some((v) => v !== '' && v !== undefined),
     staleTime: 2 * 60 * 1000,
   });
 };
@@ -45,9 +44,12 @@ export const useSearchUsers = (filters: UserFilters) => {
 // Hook para crear usuario
 export const useCreateUser = () => {
   const queryClient = useQueryClient();
+  const { user } = useAuthStore();
+  const idEmpresa = user?.id_empresa;
 
   return useMutation({
-    mutationFn: (userData: UserFormData) => createUser({ ...userData, id_empresa: EMPRESA_ID }),
+    mutationFn: (userData: Omit<UserFormData, 'id_empresa'>) =>
+      createUser({ ...userData, id_empresa: idEmpresa! }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
       toast.success('Usuario creado exitosamente');
@@ -118,28 +120,31 @@ export const useUserActivities = (userId: number) => {
     queryKey: ['users', 'activities', userId],
     queryFn: () => getUserActivities(userId),
     enabled: !!userId,
-    staleTime: 1 * 60 * 1000, // 1 minuto
+    staleTime: 1 * 60 * 1000,
   });
 };
 
 // Hook para estadísticas de usuarios
 export const useUsersStats = () => {
   const { user } = useAuthStore();
+  const idEmpresa = user?.id_empresa;
 
   return useQuery({
-    queryKey: ['users', 'stats', user?.id],
-    queryFn: () => getUsersStats(EMPRESA_ID),
-    enabled: !!user,
-    staleTime: 5 * 60 * 1000, // 5 minutos
+    queryKey: ['users', 'stats', idEmpresa],
+    queryFn: () => getUsersStats(idEmpresa!),
+    enabled: !!idEmpresa,
+    staleTime: 5 * 60 * 1000,
   });
 };
 
 // Hook para invitar usuario
 export const useInviteUser = () => {
   const queryClient = useQueryClient();
+  const { user } = useAuthStore();
+  const idEmpresa = user?.id_empresa;
 
   return useMutation({
-    mutationFn: inviteUser,
+    mutationFn: (invitation: UserInvitation) => inviteUser(invitation, idEmpresa!),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
       toast.success('Invitación enviada exitosamente');

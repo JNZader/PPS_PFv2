@@ -86,7 +86,6 @@ export const DashboardLayout = () => {
 
   return (
     <div className={styles.layout}>
-      {/* Overlay para mobile */}
       {sidebarOpen && (
         <button
           type="button"
@@ -95,7 +94,6 @@ export const DashboardLayout = () => {
           aria-label="Cerrar menú lateral"
         />
       )}
-      {/* Sidebar */}
       <aside className={`${styles.sidebar} ${!sidebarOpen ? styles.sidebarCollapsed : ''}`}>
         <div className={styles.header}>
           <Link to="/dashboard" className={styles.logo}>
@@ -140,13 +138,13 @@ export const DashboardLayout = () => {
         </div>
       </aside>
 
-      {/* Main content */}
       <main className={styles.main}>
         <header className={styles.topbar}>
           <button
             type="button"
             className={styles.menuButton}
             onClick={() => setSidebarOpen(!sidebarOpen)}
+            aria-label={sidebarOpen ? 'Cerrar menú lateral' : 'Abrir menú lateral'}
           >
             <MdMenu size={24} />
           </button>
@@ -157,6 +155,7 @@ export const DashboardLayout = () => {
               className={styles.themeToggle}
               onClick={toggleTheme}
               title={`Cambiar a tema ${theme === 'light' ? 'oscuro' : 'claro'}`}
+              aria-label={`Cambiar a tema ${theme === 'light' ? 'oscuro' : 'claro'}`}
             >
               {theme === 'light' ? <MdDarkMode size={20} /> : <MdLightMode size={20} />}
             </button>

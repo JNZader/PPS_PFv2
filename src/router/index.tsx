@@ -1,16 +1,25 @@
+import { lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 
-import { TempPage } from '../components/atoms/TempPage';
+import { Loading } from '../components/atoms/Loading';
 import { ProtectedRoute } from '../components/organisms/ProtectedRoute';
 import { DashboardLayout } from '../components/templates/DashboardLayout/DashboardLayout';
-import { Login } from '../pages/Auth/Login/Login';
-import { Register } from '../pages/Auth/Register/Register';
-import { Categories } from '../pages/Categories/Categories';
-import { Dashboard } from '../pages/Dashboard/Dashboard';
-import { Inventory } from '../pages/Inventory/Inventory';
-import { Products } from '../pages/Products/Products';
-import { Reports } from '../pages/Reports/Reports'; // ← Nueva importación
-import { Users } from '../pages/Users/Users';
+
+// Lazy load page components
+const Dashboard = lazy(() => import('../pages/Dashboard/Dashboard'));
+const Products = lazy(() => import('../pages/Products/Products'));
+const Categories = lazy(() => import('../pages/Categories/Categories'));
+const Inventory = lazy(() => import('../pages/Inventory/Inventory'));
+const Reports = lazy(() => import('../pages/Reports/Reports'));
+const Users = lazy(() => import('../pages/Users/Users'));
+const Login = lazy(() => import('../pages/Auth/Login/Login'));
+const Register = lazy(() => import('../pages/Auth/Register/Register'));
+const TempPage = lazy(() => import('../components/atoms/TempPage/TempPage'));
+
+// Helper for Suspense fallback
+const withSuspense = (Component: React.ReactNode) => (
+  <Suspense fallback={<Loading fullscreen />}>{Component}</Suspense>
+);
 
 export const router = createBrowserRouter([
   {
@@ -19,11 +28,11 @@ export const router = createBrowserRouter([
   },
   {
     path: '/auth/login',
-    element: <Login />,
+    element: withSuspense(<Login />),
   },
   {
     path: '/auth/register',
-    element: <Register />,
+    element: withSuspense(<Register />),
   },
   {
     path: '/',
@@ -35,48 +44,46 @@ export const router = createBrowserRouter([
     children: [
       {
         path: 'dashboard',
-        element: <Dashboard />,
+        element: withSuspense(<Dashboard />),
       },
       {
         path: 'products',
-        element: <Products />,
+        element: withSuspense(<Products />),
       },
       {
         path: 'products/new',
-        element: <TempPage title="Nuevo Producto" />,
+        element: withSuspense(<TempPage title="Nuevo Producto" />),
       },
       {
         path: 'categories',
         element: (
           <ProtectedRoute requiredRoles={['superadmin', 'admin']}>
-            <Categories />
+            {withSuspense(<Categories />)}
           </ProtectedRoute>
         ),
       },
       {
         path: 'inventory',
-        element: <Inventory />,
+        element: withSuspense(<Inventory />),
       },
       {
-        path: 'reports', // ← Actualizar esta ruta
+        path: 'reports',
         element: (
           <ProtectedRoute requiredRoles={['superadmin', 'admin']}>
-            <Reports />
+            {withSuspense(<Reports />)}
           </ProtectedRoute>
         ),
       },
       {
         path: 'users',
         element: (
-          <ProtectedRoute requiredRoles={['superadmin']}>
-            <Users />
-          </ProtectedRoute>
+          <ProtectedRoute requiredRoles={['superadmin']}>{withSuspense(<Users />)}</ProtectedRoute>
         ),
       },
     ],
   },
   {
     path: '*',
-    element: <TempPage title="404 - Página no encontrada" />,
+    element: withSuspense(<TempPage title="404 - Página no encontrada" />),
   },
 ]);

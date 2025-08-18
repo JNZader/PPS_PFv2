@@ -14,10 +14,12 @@ export interface Database {
           idauth: string;
           tipodoc: string;
           correo: string;
+          id_empresa: number; // <-- AÑADIDO
         };
         Insert: Omit<Database['public']['Tables']['usuarios']['Row'], 'id'>;
         Update: Partial<Database['public']['Tables']['usuarios']['Insert']>;
       };
+      // ... (el resto del archivo permanece igual)
       empresa: {
         Row: {
           id: number;
@@ -118,7 +120,6 @@ export interface Database {
           nombres: string;
           stock: number;
           estado: number;
-          // ✅ CORRECCIÓN: Se asume que la función de DB devuelve (o debería devolver) id_producto.
           id_producto: number;
         }[];
       };
@@ -197,7 +198,6 @@ export interface ProductoFormData {
 
 export interface KardexExtendido {
   id: number;
-  // ✅ CORRECCIÓN: Se añade esta propiedad, que faltaba para el filtro.
   id_producto: number;
   descripcion: string;
   fecha: string;

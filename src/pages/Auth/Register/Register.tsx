@@ -23,10 +23,10 @@ const registerSchema = z
 
 type RegisterForm = Omit<z.infer<typeof registerSchema>, 'name'> & { nombres: string };
 
-export const Register = () => {
+const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const registerUser = useAuthStore((state) => state.register); // ← CAMBIO: Renombrar para evitar conflicto
+  const registerUser = useAuthStore((state) => state.register);
   const navigate = useNavigate();
 
   const {
@@ -41,11 +41,10 @@ export const Register = () => {
     try {
       setIsLoading(true);
       setError('');
-      await registerUser(data); // ← CAMBIO: Usar el nombre renombrado
+      await registerUser(data);
       navigate('/auth/login');
-    } catch (error) {
-      // ← CAMBIO: Tipar el error correctamente
-      const errorMessage = error instanceof Error ? error.message : 'Error al crear cuenta';
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error al crear cuenta';
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -120,3 +119,5 @@ export const Register = () => {
     </div>
   );
 };
+
+export default Register;

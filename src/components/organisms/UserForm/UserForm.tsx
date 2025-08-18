@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
-import { useForm } from 'react-hook-form'; // ✅ Eliminamos Controller y setValue que no se usan
+import { useForm } from 'react-hook-form';
 import {
   MdAdminPanelSettings,
   MdInfo,
@@ -16,14 +16,13 @@ import { Input } from '../../atoms/Input';
 import { Select } from '../../atoms/Select';
 import styles from './UserForm.module.css';
 
-// Schema de validación - ✅ Simplificamos para evitar conflictos de tipos
 const userSchema = z.object({
   nombres: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
   correo: z.string().email('Email inválido'),
   tipouser: z.enum(['superadmin', 'admin', 'empleado']),
   nro_doc: z.string().min(1, 'Número de documento requerido'),
-  telefono: z.string(), // ✅ Requerido como string, manejo en defaultValues
-  direccion: z.string(), // ✅ Requerido como string, manejo en defaultValues
+  telefono: z.string(),
+  direccion: z.string(),
   tipodoc: z.enum(['DNI', 'CUIT', 'PASAPORTE']),
   password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres').optional(),
 });
@@ -31,7 +30,8 @@ const userSchema = z.object({
 type UserFormData = z.infer<typeof userSchema>;
 
 interface UserFormProps {
-  user?: UserWithStats;
+  // ✅ CORRECCIÓN: Se añade 'null' a los tipos permitidos para la prop 'user'.
+  user?: UserWithStats | null;
   onSuccess: () => void;
   onCancel: () => void;
 }
@@ -48,7 +48,6 @@ export const UserForm = ({ user, onSuccess, onCancel }: UserFormProps) => {
     formState: { errors, isSubmitting },
     reset,
     watch,
-    // ✅ Eliminamos setValue ya que no se usa en este componente
   } = useForm<UserFormData>({
     resolver: zodResolver(userSchema),
     defaultValues: {
@@ -56,8 +55,8 @@ export const UserForm = ({ user, onSuccess, onCancel }: UserFormProps) => {
       correo: '',
       tipouser: 'empleado',
       nro_doc: '',
-      telefono: '', // ✅ String vacío por defecto
-      direccion: '', // ✅ String vacío por defecto
+      telefono: '',
+      direccion: '',
       tipodoc: 'DNI',
       password: '',
     },
@@ -65,7 +64,6 @@ export const UserForm = ({ user, onSuccess, onCancel }: UserFormProps) => {
 
   const watchedTipouser = watch('tipouser');
 
-  // Cargar datos del usuario al editar
   useEffect(() => {
     if (isEditing && user) {
       reset({
@@ -73,8 +71,8 @@ export const UserForm = ({ user, onSuccess, onCancel }: UserFormProps) => {
         correo: user.correo,
         tipouser: user.tipouser,
         nro_doc: user.nro_doc || '',
-        telefono: user.telefono || '', // ✅ Asegurar que sea string
-        direccion: user.direccion || '', // ✅ Asegurar que sea string
+        telefono: user.telefono || '',
+        direccion: user.direccion || '',
         tipodoc: (user.tipodoc as 'DNI' | 'CUIT' | 'PASAPORTE') || 'DNI',
       });
     }
@@ -83,7 +81,6 @@ export const UserForm = ({ user, onSuccess, onCancel }: UserFormProps) => {
   const onSubmit = async (data: UserFormData) => {
     try {
       if (isEditing && user) {
-        // Eliminar password del payload si está vacío al editar
         const { password, ...updateData } = data;
         await updateUserMutation.mutateAsync({
           id: user.id,
@@ -140,7 +137,6 @@ export const UserForm = ({ user, onSuccess, onCancel }: UserFormProps) => {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
-        {/* Información Personal */}
         <div className={styles.formSection}>
           <h3 className={styles.sectionTitle}>
             <MdPerson size={20} />
@@ -182,7 +178,6 @@ export const UserForm = ({ user, onSuccess, onCancel }: UserFormProps) => {
             />
           </div>
 
-          {/* ✅ Cerrar correctamente el div */}
           <div className={styles.formGrid}>
             <Input
               label="Teléfono"
@@ -202,7 +197,6 @@ export const UserForm = ({ user, onSuccess, onCancel }: UserFormProps) => {
 
         <hr className={styles.sectionDivider} />
 
-        {/* Rol del Usuario */}
         <div className={styles.formSection}>
           <h3 className={styles.sectionTitle}>
             <MdAdminPanelSettings size={20} />
@@ -233,7 +227,6 @@ export const UserForm = ({ user, onSuccess, onCancel }: UserFormProps) => {
 
         <hr className={styles.sectionDivider} />
 
-        {/* Contraseña */}
         <div className={styles.formSection}>
           <h3 className={styles.sectionTitle}>
             <MdLock size={20} />
@@ -259,7 +252,6 @@ export const UserForm = ({ user, onSuccess, onCancel }: UserFormProps) => {
           </div>
         </div>
 
-        {/* Acciones */}
         <div className={styles.formActions}>
           <Button
             type="button"

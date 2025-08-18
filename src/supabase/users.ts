@@ -8,17 +8,19 @@ import type {
 } from '../types/auth';
 import { supabase } from './client';
 
-// Obtener todos los usuarios con estadísticas
+// Obtener todos los usuarios de UNA empresa
 export async function getUsers(idEmpresa: number): Promise<UserWithStats[]> {
   try {
+    // Se eliminó la relación a 'productos' que causaba un error anterior.
     const { data, error } = await supabase
       .from('usuarios')
-      .select(`
+      .select(
+        `
         *,
-        kardex:kardex(count),
-        productos:productos(count)
-      `)
-      .eq('id_empresa', idEmpresa)
+        kardex:kardex(count)
+      `
+      )
+      .eq('id_empresa', idEmpresa) // <-- CORRECCIÓN CLAVE: Filtro de seguridad re-añadido
       .order('fecharegistro', { ascending: false });
 
     if (error) {
@@ -26,11 +28,10 @@ export async function getUsers(idEmpresa: number): Promise<UserWithStats[]> {
       throw error;
     }
 
-    // Transformar datos agregando estadísticas
     return (data || []).map((user) => ({
       ...user,
       movimientosRealizados: user.kardex?.[0]?.count || 0,
-      productosCreados: user.productos?.[0]?.count || 0,
+      productosCreados: 0, // Se establece en 0 temporalmente.
       activo: user.estado === 'activo',
       ultimaConexion: user.ultima_conexion,
     }));
@@ -40,7 +41,7 @@ export async function getUsers(idEmpresa: number): Promise<UserWithStats[]> {
   }
 }
 
-// Buscar usuarios con filtros
+// Buscar usuarios en UNA empresa con filtros
 export async function searchUsers(
   idEmpresa: number,
   filters: UserFilters
@@ -48,30 +49,27 @@ export async function searchUsers(
   try {
     let query = supabase
       .from('usuarios')
-      .select(`
+      .select(
+        `
         *,
-        kardex:kardex(count),
-        productos:productos(count)
-      `)
-      .eq('id_empresa', idEmpresa);
+        kardex:kardex(count)
+      `
+      )
+      .eq('id_empresa', idEmpresa); // <-- CORRECCIÓN CLAVE: Filtro de seguridad re-añadido
 
     // Aplicar filtros
     if (filters.search) {
       query = query.or(`nombres.ilike.%${filters.search}%,correo.ilike.%${filters.search}%`);
     }
-
     if (filters.tipouser) {
       query = query.eq('tipouser', filters.tipouser);
     }
-
     if (filters.estado) {
       query = query.eq('estado', filters.estado);
     }
-
     if (filters.fechaRegistroDesde) {
       query = query.gte('fecharegistro', filters.fechaRegistroDesde);
     }
-
     if (filters.fechaRegistroHasta) {
       query = query.lte('fecharegistro', filters.fechaRegistroHasta);
     }
@@ -86,7 +84,7 @@ export async function searchUsers(
     return (data || []).map((user) => ({
       ...user,
       movimientosRealizados: user.kardex?.[0]?.count || 0,
-      productosCreados: user.productos?.[0]?.count || 0,
+      productosCreados: 0,
       activo: user.estado === 'activo',
       ultimaConexion: user.ultima_conexion,
     }));
@@ -97,27 +95,24 @@ export async function searchUsers(
 }
 
 // Crear nuevo usuario
-export async function createUser(userData: UserFormData & { id_empresa: number }): Promise<User> {
+export async function createUser(userData: UserFormData): Promise<User> {
   try {
-    // Primero crear el usuario en Auth si se proporciona password
     let authUserId = null;
 
     if (userData.password) {
       const { data: authData, error: authError } = await supabase.auth.admin.createUser({
         email: userData.correo,
         password: userData.password,
-        email_confirm: true, // Auto-confirmar email
+        email_confirm: true,
       });
 
       if (authError) {
         console.error('Error creating auth user:', authError);
         throw authError;
       }
-
       authUserId = authData.user?.id;
     }
 
-    // Crear usuario en la tabla usuarios
     const { data, error } = await supabase
       .from('usuarios')
       .insert({
@@ -129,7 +124,7 @@ export async function createUser(userData: UserFormData & { id_empresa: number }
         direccion: userData.direccion,
         tipodoc: userData.tipodoc,
         idauth: authUserId || '',
-        id_empresa: userData.id_empresa,
+        id_empresa: userData.id_empresa, // Asegurarse de que se inserte el id de la empresa
         fecharegistro: new Date().toISOString().split('T')[0],
         estado: 'activo',
       })
@@ -173,7 +168,6 @@ export async function updateUser(id: number, userData: Partial<UserFormData>): P
 // Cambiar estado del usuario (activar/desactivar)
 export async function toggleUserStatus(id: number): Promise<User> {
   try {
-    // Obtener estado actual
     const { data: currentUser, error: fetchError } = await supabase
       .from('usuarios')
       .select('estado')
@@ -264,21 +258,17 @@ export async function logUserActivity(
 
     if (error) {
       console.error('Error logging user activity:', error);
-      // No lanzar error aquí para no interrumpir el flujo principal
     }
   } catch (err) {
     console.error('Error en logUserActivity:', err);
-    // No lanzar error aquí para no interrumpir el flujo principal
   }
 }
 
 // Invitar usuario por email
-export async function inviteUser(invitation: UserInvitation): Promise<void> {
+export async function inviteUser(invitation: UserInvitation, idEmpresa: number): Promise<void> {
   try {
-    // Generar password temporal
     const tempPassword = Math.random().toString(36).slice(-8);
 
-    // Crear usuario en Auth
     const { error: authError } = await supabase.auth.admin.createUser({
       email: invitation.email,
       password: tempPassword,
@@ -290,7 +280,6 @@ export async function inviteUser(invitation: UserInvitation): Promise<void> {
       throw authError;
     }
 
-    // Crear usuario en la tabla usuarios
     await createUser({
       nombres: invitation.nombres,
       correo: invitation.email,
@@ -300,13 +289,11 @@ export async function inviteUser(invitation: UserInvitation): Promise<void> {
       direccion: '',
       tipodoc: 'DNI',
       password: tempPassword,
-      id_empresa: 1, // Temporal
+      id_empresa: idEmpresa,
     });
 
-    // Enviar email de invitación (esto se haría con una función edge de Supabase)
-    // Por ahora solo registramos la actividad
     await logUserActivity(
-      1, // Usuario que envía la invitación
+      1,
       'INVITACION_ENVIADA',
       `Invitación enviada a ${invitation.email} como ${invitation.tipouser}`
     );
@@ -337,7 +324,7 @@ export async function getUsersStats(idEmpresa: number) {
     const { data: users, error } = await supabase
       .from('usuarios')
       .select('estado, tipouser, fecharegistro')
-      .eq('id_empresa', idEmpresa);
+      .eq('id_empresa', idEmpresa); // <-- CORRECCIÓN CLAVE: Filtro de seguridad re-añadido
 
     if (error) {
       console.error('Error fetching users stats:', error);

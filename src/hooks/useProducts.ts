@@ -4,7 +4,8 @@ import toast from 'react-hot-toast';
 import { useAuthStore } from '../store/authStore';
 import { BrandService, CategoryService } from '../supabase/categories';
 import { ProductService } from '../supabase/products';
-import type { Producto, ProductoFormData } from '../types/database';
+// ✅ CORRECCIÓN: Importamos ProductoExtendido
+import type { Producto, ProductoExtendido, ProductoFormData } from '../types/database';
 
 // ⚙️ ID de empresa (temporal)
 const EMPRESA_ID = 1;
@@ -13,26 +14,27 @@ const EMPRESA_ID = 1;
  * Productos
  * ================================ */
 
-// Lista de productos -> Producto[]
+// Lista de productos -> ProductoExtendido[]
+// ✅ CORRECCIÓN: Se cambia el tipo de retorno a ProductoExtendido[]
 export const useProducts = () => {
   const { user } = useAuthStore();
 
-  return useQuery<Producto[]>({
+  return useQuery<ProductoExtendido[]>({
     queryKey: ['products', user?.id],
-    // Si ProductService.getProducts ya devuelve Promise<Producto[]>, el `as` no hace falta.
-    queryFn: () => ProductService.getProducts(EMPRESA_ID) as Promise<Producto[]>,
+    queryFn: () => ProductService.getProducts(EMPRESA_ID) as Promise<ProductoExtendido[]>,
     enabled: !!user,
     staleTime: 5 * 60 * 1000, // 5 minutos
   });
 };
 
-// Búsqueda de productos -> Producto[]
+// Búsqueda de productos -> ProductoExtendido[]
+// ✅ CORRECCIÓN: Se cambia el tipo de retorno a ProductoExtendido[]
 export const useProductSearch = (query: string) => {
   const { user } = useAuthStore();
 
-  return useQuery<Producto[]>({
+  return useQuery<ProductoExtendido[]>({
     queryKey: ['products', 'search', query, user?.id],
-    queryFn: () => ProductService.searchProducts(EMPRESA_ID, query) as Promise<Producto[]>,
+    queryFn: () => ProductService.searchProducts(EMPRESA_ID, query) as Promise<ProductoExtendido[]>,
     enabled: !!user && query.length > 0,
     staleTime: 2 * 60 * 1000, // 2 minutos
   });

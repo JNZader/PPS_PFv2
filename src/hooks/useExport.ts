@@ -13,7 +13,7 @@ export const useExportReport = () => {
         throw new Error('No se proporcionaron datos para exportar.');
       }
       const pdfBlob = await ReportGenerator.generatePDF(data);
-      // Usar la función de descarga del propio ReportGenerator 
+      // Usar la función de descarga del propio ReportGenerator
       ReportGenerator.downloadFile(pdfBlob, `${data.type}-report`, 'pdf');
       return pdfBlob;
     },

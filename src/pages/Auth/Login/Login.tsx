@@ -16,7 +16,7 @@ const loginSchema = z.object({
 
 type LoginForm = z.infer<typeof loginSchema>;
 
-export const Login = () => {
+const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const login = useAuthStore((state) => state.login);
@@ -36,9 +36,8 @@ export const Login = () => {
       setError('');
       await login(data);
       navigate('/dashboard');
-    } catch (error) {
-      // ← CAMBIO: Tipar el error correctamente
-      const errorMessage = error instanceof Error ? error.message : 'Error al iniciar sesión';
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error al iniciar sesión';
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -93,3 +92,5 @@ export const Login = () => {
     </div>
   );
 };
+
+export default Login;

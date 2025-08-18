@@ -24,6 +24,7 @@ export interface User {
   correo: string;
   tipouser: UserRole;
   estado: string;
+  id_empresa: number; // <-- AÑADIDO
   nro_doc?: string;
   telefono?: string;
   direccion?: string;
@@ -50,6 +51,7 @@ export interface UserFormData {
   direccion: string;
   tipodoc: 'DNI' | 'CUIT' | 'PASAPORTE';
   password?: string;
+  id_empresa: number; // <-- AÑADIDO
 }
 
 export interface UserWithStats extends User {

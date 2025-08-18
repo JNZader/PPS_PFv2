@@ -5,7 +5,7 @@ import { Loading } from '../../components/atoms/Loading';
 import { useBrands, useCategories } from '../../hooks/useProducts';
 import styles from './Categories.module.css';
 
-export const Categories = () => {
+const Categories = () => {
   const { data: categories = [], isLoading: categoriesLoading } = useCategories();
   const { data: brands = [], isLoading: brandsLoading } = useBrands();
 
@@ -140,3 +140,5 @@ export const Categories = () => {
     </div>
   );
 };
+
+export default Categories;

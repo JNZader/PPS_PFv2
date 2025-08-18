@@ -9,7 +9,7 @@ import {
   type SortingState,
   useReactTable,
 } from '@tanstack/react-table';
-import { type CSSProperties, type FC, useMemo, useState } from 'react'; // Import FC and CSSProperties
+import { type CSSProperties, type FC, useCallback, useMemo, useState } from 'react'; // ✅ CORRECCIÓN: Importar useCallback
 import {
   MdAdd,
   MdDelete,
@@ -32,28 +32,18 @@ import type { ProductoExtendido } from '../../../types/database';
 import { formatCurrency } from '../../../utils/format';
 import { Button } from '../../atoms/Button';
 import { Input } from '../../atoms/Input';
-// import { Badge } from '../../atoms/Badge'; // <--- HEMOS COMENTADO ESTO TEMPORALMENTE
 import { Loading } from '../../atoms/Loading';
 import { Select } from '../../atoms/Select';
 import styles from './ProductTable.module.css';
 
-// ==============================================================================
-//  INICIO DE LA CORRECCIÓN: Componente Badge Temporal
-// ==============================================================================
-// Este es un componente Badge temporal que SÍ acepta la prop 'style'.
-// El error desaparecerá porque ahora estamos usando este componente en lugar del de su archivo.
-//
-// ACCIÓN REQUERIDA: Copie este componente y reemplácelo en su archivo `../../atoms/Badge.tsx`.
-// Después de hacerlo, puede borrar este código de aquí y descomentar la línea de import de arriba.
-
+// Componente Badge Temporal
 interface BadgeProps {
   children: React.ReactNode;
   variant?: 'default' | 'primary' | 'secondary';
-  style?: CSSProperties; // <-- LA LÍNEA MÁGICA QUE ACEPTA EL ESTILO
+  style?: CSSProperties;
 }
 
 const Badge: FC<BadgeProps> = ({ children, style }) => {
-  // Un estilo base para que se vea como un badge
   const baseStyle: CSSProperties = {
     display: 'inline-block',
     padding: '0.25em 0.6em',
@@ -65,15 +55,9 @@ const Badge: FC<BadgeProps> = ({ children, style }) => {
     verticalAlign: 'baseline',
     borderRadius: '0.375rem',
   };
-
-  // Fusionamos el estilo base con el estilo que se le pasa
   const finalStyle = { ...baseStyle, ...style };
-
   return <span style={finalStyle}>{children}</span>;
 };
-// ==============================================================================
-//  FIN DE LA CORRECCIÓN
-// ==============================================================================
 
 const columnHelper = createColumnHelper<ProductoExtendido>();
 
@@ -111,111 +95,116 @@ export const ProductTable = ({ onEdit, onAdd }: ProductTableProps) => {
     [brands]
   );
 
-  const handleDelete = async (id: number) => {
-    if (window.confirm('¿Estás seguro de que deseas eliminar este producto?')) {
-      await deleteProductMutation.mutateAsync(id);
-    }
-  };
+  // ✅ CORRECCIÓN: Envolver handleDelete en useCallback
+  const handleDelete = useCallback(
+    async (id: number) => {
+      if (window.confirm('¿Estás seguro de que deseas eliminar este producto?')) {
+        await deleteProductMutation.mutateAsync(id);
+      }
+    },
+    [deleteProductMutation]
+  );
 
-  const columns = [
-    columnHelper.accessor('descripcion', {
-      header: 'Producto',
-      cell: ({ row }) => (
-        <div className={styles.productInfo}>
-          <div className={styles.productName}>{row.original.descripcion}</div>
-          <div className={styles.productCode}>
-            {row.original.codigointerno && `Código: ${row.original.codigointerno}`}
-            {row.original.codigointerno && row.original.codigobarras && ' • '}
-            {row.original.codigobarras && `EAN: ${row.original.codigobarras}`}
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor('descripcion', {
+        header: 'Producto',
+        cell: ({ row }) => (
+          <div className={styles.productInfo}>
+            <div className={styles.productName}>{row.original.descripcion}</div>
+            <div className={styles.productCode}>
+              {row.original.codigointerno && `Código: ${row.original.codigointerno}`}
+              {row.original.codigointerno && row.original.codigobarras && ' • '}
+              {row.original.codigobarras && `EAN: ${row.original.codigobarras}`}
+            </div>
           </div>
-        </div>
-      ),
-    }),
-    columnHelper.accessor('categoria', {
-      header: 'Categoría',
-      cell: ({ getValue, row }) => (
-        // Ahora, este Badge es el componente temporal que creamos arriba.
-        // Ya no dará error.
-        <Badge
-          variant="default"
-          style={{
-            backgroundColor: row.original.color || '#3b82f6',
-            color: 'white',
-          }}
-        >
-          {getValue()}
-        </Badge>
-      ),
-      filterFn: (row, filterValue) => {
-        if (!filterValue) return true;
-        return row.original.id_categoria.toString() === filterValue;
-      },
-    }),
-    columnHelper.accessor('marca', {
-      header: 'Marca',
-      filterFn: (row, filterValue) => {
-        if (!filterValue) return true;
-        return row.original.idmarca.toString() === filterValue;
-      },
-    }),
-    columnHelper.accessor('stock', {
-      header: 'Stock',
-      cell: ({ getValue, row }) => {
-        const stock = getValue();
-        const stockMinimo = row.original.stock_minimo;
+        ),
+      }),
+      columnHelper.accessor('categoria', {
+        header: 'Categoría',
+        cell: ({ getValue, row }) => (
+          <Badge
+            variant="default"
+            style={{
+              backgroundColor: row.original.color || '#3b82f6',
+              color: 'white',
+            }}
+          >
+            {getValue()}
+          </Badge>
+        ),
+        filterFn: (row, _columnId, filterValue) => {
+          if (!filterValue) return true;
+          return row.original.id_categoria.toString() === filterValue;
+        },
+      }),
+      columnHelper.accessor('marca', {
+        header: 'Marca',
+        filterFn: (row, _columnId, filterValue) => {
+          if (!filterValue) return true;
+          return row.original.idmarca.toString() === filterValue;
+        },
+      }),
+      columnHelper.accessor('stock', {
+        header: 'Stock',
+        cell: ({ getValue, row }) => {
+          const stock = getValue();
+          const stockMinimo = row.original.stock_minimo;
 
-        let stockClass = styles.stockNormal;
-        if (stock <= stockMinimo) stockClass = styles.stockLow;
-        else if (stock > stockMinimo * 2) stockClass = styles.stockHigh;
+          let stockClass = styles.stockNormal;
+          if (stock <= stockMinimo) stockClass = styles.stockLow;
+          else if (stock > stockMinimo * 2) stockClass = styles.stockHigh;
 
-        return (
-          <div className={styles.stockCell}>
-            <span className={`${styles.stockAmount} ${stockClass}`}>{stock} uds</span>
-            <span className={styles.stockMinimo}>Mín: {stockMinimo}</span>
+          return (
+            <div className={styles.stockCell}>
+              <span className={`${styles.stockAmount} ${stockClass}`}>{stock} uds</span>
+              <span className={styles.stockMinimo}>Mín: {stockMinimo}</span>
+            </div>
+          );
+        },
+      }),
+      columnHelper.accessor('precioventa', {
+        header: 'Precios',
+        cell: ({ getValue, row }) => (
+          <div className={styles.priceCell}>
+            <span className={styles.priceVenta}>{formatCurrency(getValue())}</span>
+            <span className={styles.priceCompra}>
+              Compra: {formatCurrency(row.original.preciocompra)}
+            </span>
           </div>
-        );
-      },
-    }),
-    columnHelper.accessor('precioventa', {
-      header: 'Precios',
-      cell: ({ getValue, row }) => (
-        <div className={styles.priceCell}>
-          <span className={styles.priceVenta}>{formatCurrency(getValue())}</span>
-          <span className={styles.priceCompra}>
-            Compra: {formatCurrency(row.original.preciocompra)}
-          </span>
-        </div>
-      ),
-    }),
-    columnHelper.display({
-      id: 'actions',
-      header: 'Acciones',
-      cell: ({ row }) => (
-        <div className={styles.actionsCell}>
-          <button
-            type="button"
-            className={`${styles.actionButton} ${styles.editButton}`}
-            onClick={() => onEdit(row.original)}
-            title="Editar producto"
-          >
-            <MdEdit size={18} />
-          </button>
-          <button
-            type="button"
-            className={`${styles.actionButton} ${styles.deleteButton}`}
-            onClick={() => handleDelete(row.original.id)}
-            title="Eliminar producto"
-            disabled={deleteProductMutation.isPending}
-          >
-            <MdDelete size={18} />
-          </button>
-        </div>
-      ),
-    }),
-  ];
+        ),
+      }),
+      columnHelper.display({
+        id: 'actions',
+        header: 'Acciones',
+        cell: ({ row }) => (
+          <div className={styles.actionsCell}>
+            <button
+              type="button"
+              className={`${styles.actionButton} ${styles.editButton}`}
+              onClick={() => onEdit(row.original)}
+              title="Editar producto"
+            >
+              <MdEdit size={18} />
+            </button>
+            <button
+              type="button"
+              className={`${styles.actionButton} ${styles.deleteButton}`}
+              onClick={() => handleDelete(row.original.id)}
+              title="Eliminar producto"
+              disabled={deleteProductMutation.isPending}
+            >
+              <MdDelete size={18} />
+            </button>
+          </div>
+        ),
+      }),
+    ],
+    [onEdit, handleDelete, deleteProductMutation.isPending] // ✅ CORRECCIÓN: Añadir handleDelete a las dependencias
+  );
 
   const table = useReactTable({
-    data: products,
+    data: products, // ✅ CORRECCIÓN: Ahora el tipo de `products` coincide con el esperado
     columns,
     state: {
       globalFilter: debouncedGlobalFilter,
@@ -256,7 +245,6 @@ export const ProductTable = ({ onEdit, onAdd }: ProductTableProps) => {
 
   return (
     <div className={styles.tableContainer}>
-      {/* Header, Filtros, Tabla y Paginación... (todo el resto del código es igual) */}
       <div className={styles.tableHeader}>
         <h2 className={styles.tableTitle}>Productos ({table.getFilteredRowModel().rows.length})</h2>
 
@@ -293,7 +281,7 @@ export const ProductTable = ({ onEdit, onAdd }: ProductTableProps) => {
             <Select
               placeholder="Filtrar por categoría"
               options={categoryOptions}
-              value={table.getColumn('categoria')?.getFilterValue() as string | ''}
+              value={(table.getColumn('categoria')?.getFilterValue() as string) ?? ''}
               onChange={(e) =>
                 table.getColumn('categoria')?.setFilterValue(e.target.value || undefined)
               }
@@ -302,7 +290,7 @@ export const ProductTable = ({ onEdit, onAdd }: ProductTableProps) => {
             <Select
               placeholder="Filtrar por marca"
               options={brandOptions}
-              value={table.getColumn('marca')?.getFilterValue() as string | ''}
+              value={(table.getColumn('marca')?.getFilterValue() as string) ?? ''}
               onChange={(e) =>
                 table.getColumn('marca')?.setFilterValue(e.target.value || undefined)
               }
@@ -330,7 +318,9 @@ export const ProductTable = ({ onEdit, onAdd }: ProductTableProps) => {
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-                    className={`${styles.headerCell} ${header.column.getCanSort() ? styles.sortableHeader : ''}`}
+                    className={`${styles.headerCell} ${
+                      header.column.getCanSort() ? styles.sortableHeader : ''
+                    }`}
                     onClick={
                       header.column.getCanSort()
                         ? header.column.getToggleSortingHandler()
@@ -342,7 +332,9 @@ export const ProductTable = ({ onEdit, onAdd }: ProductTableProps) => {
                         {flexRender(header.column.columnDef.header, header.getContext())}
                         {header.column.getCanSort() && (
                           <span
-                            className={`${styles.sortIcon} ${header.column.getIsSorted() ? styles.active : ''}`}
+                            className={`${styles.sortIcon} ${
+                              header.column.getIsSorted() ? styles.active : ''
+                            }`}
                           >
                             {header.column.getIsSorted() === 'desc' ? (
                               <MdKeyboardArrowDown size={16} />
@@ -430,13 +422,11 @@ export const ProductTable = ({ onEdit, onAdd }: ProductTableProps) => {
               {'<'}
             </button>
 
-            {/* Simplificar la paginación para evitar problemas */}
             {(() => {
               const pageCount = table.getPageCount();
               const currentPage = table.getState().pagination.pageIndex;
               const visiblePages = [];
 
-              // Mostrar solo 5 páginas como máximo
               const startPage = Math.max(0, Math.min(currentPage - 2, pageCount - 5));
               const endPage = Math.min(pageCount, startPage + 5);
 

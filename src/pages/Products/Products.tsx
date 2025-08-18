@@ -8,7 +8,7 @@ import type { ProductoExtendido } from '../../types/database';
 import { formatCurrency, formatNumber } from '../../utils/format';
 import styles from './Products.module.css';
 
-export const Products = () => {
+const Products = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<ProductoExtendido | null>(null);
 
@@ -122,3 +122,5 @@ export const Products = () => {
     </div>
   );
 };
+
+export default Products;

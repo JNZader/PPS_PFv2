@@ -2,7 +2,7 @@ interface TempPageProps {
   title: string;
 }
 
-export const TempPage = ({ title }: TempPageProps) => (
+const TempPage = ({ title }: TempPageProps) => (
   <div
     style={{
       padding: '2rem',
@@ -21,3 +21,5 @@ export const TempPage = ({ title }: TempPageProps) => (
     <p>Esta página estará disponible en la próxima iteración.</p>
   </div>
 );
+
+export default TempPage;
