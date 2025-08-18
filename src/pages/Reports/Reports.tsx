@@ -17,12 +17,16 @@ import { ReportFilters } from '../../components/molecules/ReportFilters';
 import { ReportCard } from '../../components/organisms/ReportCard';
 import { useProducts } from '../../hooks/useProducts';
 import { ReportGenerator } from '../../services/reports/reportGenerator';
-import type { ReportFilters as IReportFilters } from '../../types/reports';
+// ✅ CORRECCIÓN: Se importa AnyReportData para tipar correctamente los generadores.
+import type { AnyReportData, ReportFilters as IReportFilters } from '../../types/reports';
 import { formatCurrency, formatNumber, formatRelativeTime } from '../../utils/format';
 import styles from './Reports.module.css';
 
 export const Reports = () => {
-  const [filters, setFilters] = useState<IReportFilters>({});
+  const [filters, setFilters] = useState<IReportFilters>({
+    // ✅ CORRECCIÓN: Se establece un valor inicial para tipoReporte para que coincida con la definición de tipos.
+    tipoReporte: 'stock-actual',
+  });
   const [isGenerating, setIsGenerating] = useState(false);
   const [lastGenerated, setLastGenerated] = useState<Record<string, string>>({});
 
@@ -31,9 +35,9 @@ export const Reports = () => {
   // Calcular estadísticas rápidas
   const stats = {
     totalProducts: products.length,
-    lowStockProducts: products.filter(p => p.stock <= p.stock_minimo).length,
-    totalValue: products.reduce((sum, p) => sum + (p.stock * p.precioventa), 0),
-    outOfStock: products.filter(p => p.stock === 0).length,
+    lowStockProducts: products.filter((p) => p.stock <= p.stock_minimo).length,
+    totalValue: products.reduce((sum, p) => sum + p.stock * p.precioventa, 0),
+    outOfStock: products.filter((p) => p.stock === 0).length,
   };
 
   // Configuración de reportes disponibles
@@ -68,21 +72,22 @@ export const Reports = () => {
     },
   ];
 
-  const handleGeneratePDF = async (reportType: string, generator: () => Promise<any>) => {
+  // ✅ CORRECCIÓN: Se tipa el parámetro 'generator' correctamente.
+  const handleGeneratePDF = async (reportType: string, generator: () => Promise<AnyReportData>) => {
     try {
       setIsGenerating(true);
       const reportData = await generator();
       const pdfBlob = await ReportGenerator.generatePDF(reportData);
-      
+
       ReportGenerator.downloadFile(pdfBlob, `${reportType}-report`, 'pdf');
-      
-      setLastGenerated(prev => ({
+
+      setLastGenerated((prev) => ({
         ...prev,
         [reportType]: formatRelativeTime(new Date()),
       }));
-      
+
       toast.success('Reporte PDF generado exitosamente');
-      } catch (error) {
+    } catch (error) {
       console.error('Error generating PDF:', error);
       toast.error('Error al generar el reporte PDF');
     } finally {
@@ -90,19 +95,20 @@ export const Reports = () => {
     }
   };
 
-  const handleGenerateCSV = async (reportType: string, generator: () => Promise<any>) => {
+  // ✅ CORRECCIÓN: Se tipa el parámetro 'generator' correctamente.
+  const handleGenerateCSV = async (reportType: string, generator: () => Promise<AnyReportData>) => {
     try {
       setIsGenerating(true);
       const reportData = await generator();
       const csvContent = ReportGenerator.generateCSV(reportData);
-      
+
       ReportGenerator.downloadFile(csvContent, `${reportType}-report`, 'csv');
-      
-      setLastGenerated(prev => ({
+
+      setLastGenerated((prev) => ({
         ...prev,
         [reportType]: formatRelativeTime(new Date()),
       }));
-      
+
       toast.success('Reporte CSV generado exitosamente');
     } catch (error) {
       console.error('Error generating CSV:', error);
@@ -171,7 +177,8 @@ export const Reports = () => {
       {/* Alertas */}
       {stats.lowStockProducts > 0 && (
         <Alert variant="warning" title={`${stats.lowStockProducts} productos con stock bajo`}>
-          Te recomendamos generar el reporte de stock bajo para identificar los productos que necesitan reabastecimiento.
+          Te recomendamos generar el reporte de stock bajo para identificar los productos que
+          necesitan reabastecimiento.
         </Alert>
       )}
 
@@ -187,10 +194,10 @@ export const Reports = () => {
           <MdFilterList size={24} />
           Filtros de Reportes
         </h2>
-        <ReportFilters 
-          filters={filters} 
+        <ReportFilters
+          filters={filters}
           onFiltersChange={handleFiltersChange}
-          disabled={isGenerating}
+          isGenerating={isGenerating} // ✅ CORRECCIÓN: Se cambió 'disabled' por 'isGenerating'.
         />
       </div>
 
@@ -216,10 +223,13 @@ export const Reports = () => {
           <MdDownload size={24} />
           Reportes Recientes
         </h2>
-        
+
         {Object.keys(lastGenerated).length === 0 ? (
           <div className={styles.emptyState}>
-            <MdPictureAsPdf size={48} style={{ color: 'var(--text-muted)', marginBottom: 'var(--spacing-md)' }} />
+            <MdPictureAsPdf
+              size={48}
+              style={{ color: 'var(--text-muted)', marginBottom: 'var(--spacing-md)' }}
+            />
             <p>No hay reportes generados recientemente</p>
             <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--text-muted)' }}>
               Genera tu primer reporte usando las opciones de arriba
@@ -228,7 +238,7 @@ export const Reports = () => {
         ) : (
           <div className={styles.recentList}>
             {Object.entries(lastGenerated).map(([type, time]) => {
-              const report = availableReports.find(r => r.type === type);
+              const report = availableReports.find((r) => r.type === type);
               return (
                 <div key={type} className={styles.recentItem}>
                   <div className={styles.recentInfo}>
@@ -261,25 +271,29 @@ export const Reports = () => {
           <li className={styles.helpItem}>
             <MdInventory className={styles.helpIcon} size={16} />
             <span>
-              <strong>Reporte de Stock:</strong> Muestra el estado actual de todos los productos con sus niveles de inventario.
+              <strong>Reporte de Stock:</strong> Muestra el estado actual de todos los productos con
+              sus niveles de inventario.
             </span>
           </li>
           <li className={styles.helpItem}>
             <MdWarning className={styles.helpIcon} size={16} />
             <span>
-              <strong>Stock Bajo:</strong> Identifica productos que están por debajo del stock mínimo configurado.
+              <strong>Stock Bajo:</strong> Identifica productos que están por debajo del stock
+              mínimo configurado.
             </span>
           </li>
           <li className={styles.helpItem}>
             <MdTrendingUp className={styles.helpIcon} size={16} />
             <span>
-              <strong>Kardex:</strong> Historial completo de entradas y salidas de productos en un período específico.
+              <strong>Kardex:</strong> Historial completo de entradas y salidas de productos en un
+              período específico.
             </span>
           </li>
           <li className={styles.helpItem}>
             <MdAssessment className={styles.helpIcon} size={16} />
             <span>
-              <strong>Inventario Valorado:</strong> Análisis financiero del inventario con valores de compra y venta.
+              <strong>Inventario Valorado:</strong> Análisis financiero del inventario con valores
+              de compra y venta.
             </span>
           </li>
         </ul>

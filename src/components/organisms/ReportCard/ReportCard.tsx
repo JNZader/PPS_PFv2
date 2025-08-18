@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { MdDownload, MdPictureAsPdf, MdTableChart, MdVisibility } from 'react-icons/md';
-import { Loading } from '../../atoms/Loading';
+// ✅ CORRECCIÓN: Se eliminó MdDownload que no se estaba utilizando.
+import { MdPictureAsPdf, MdTableChart, MdVisibility } from 'react-icons/md';
 import type { ReportType } from '../../../types/reports';
+import { Loading } from '../../atoms/Loading';
 import styles from './ReportCard.module.css';
 
 interface ReportCardProps {
@@ -16,7 +17,7 @@ interface ReportCardProps {
 }
 
 export const ReportCard = ({
-  type,
+  // ✅ CORRECCIÓN: Se eliminó la prop "type" que no se usaba.
   title,
   description,
   icon,
@@ -45,7 +46,7 @@ export const ReportCard = ({
           <Loading text="Generando reporte..." />
         </div>
       )}
-      
+
       <div className={styles.cardHeader}>
         <div className={styles.cardIcon}>{icon}</div>
         <div className={styles.cardContent}>
@@ -58,10 +59,10 @@ export const ReportCard = ({
         <div className={styles.cardMeta}>
           {lastGenerated && `Última generación: ${lastGenerated}`}
         </div>
-        
+
         <div className={styles.cardActions}>
           {onPreview && (
-            <button 
+            <button
               type="button"
               className={styles.actionButton}
               onClick={onPreview}
@@ -71,8 +72,8 @@ export const ReportCard = ({
               Vista Previa
             </button>
           )}
-          
-          <button 
+
+          <button
             type="button"
             className={styles.actionButton}
             onClick={() => handleAction(onGenerateCSV)}
@@ -81,8 +82,8 @@ export const ReportCard = ({
             <MdTableChart size={16} />
             CSV
           </button>
-          
-          <button 
+
+          <button
             type="button"
             className={`${styles.actionButton} ${styles.primaryAction}`}
             onClick={() => handleAction(onGeneratePDF)}

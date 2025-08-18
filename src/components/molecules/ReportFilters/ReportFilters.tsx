@@ -1,14 +1,15 @@
 import { MdFilterList, MdPictureAsPdf, MdTableChart } from 'react-icons/md';
+import { useBrands, useCategories } from '../../../hooks/useProducts';
+// ✅ CORRECCIÓN: Se renombró el tipo importado para evitar conflicto de nombres con el componente.
+import type { ReportFilters as ReportFiltersType, ReportType } from '../../../types/reports';
 import { Button } from '../../atoms/Button';
 import { Input } from '../../atoms/Input';
 import { Select } from '../../atoms/Select';
-import { useCategories, useBrands } from '../../../hooks/useProducts';
-import type { ReportFilters, ReportType } from '../../../types/reports';
 import styles from './ReportFilters.module.css';
 
 interface ReportFiltersProps {
-  filters: ReportFilters;
-  onFiltersChange: (filters: ReportFilters) => void;
+  filters: ReportFiltersType;
+  onFiltersChange: (filters: ReportFiltersType) => void;
   onGeneratePDF: () => void;
   onGenerateCSV: () => void;
   isGenerating?: boolean;
@@ -34,15 +35,16 @@ export const ReportFilters = ({
 
   const categoryOptions = [
     { value: '', label: 'Todas las categorías' },
-    ...categories.map(cat => ({ value: cat.id.toString(), label: cat.descripcion })),
+    ...categories.map((cat) => ({ value: cat.id.toString(), label: cat.descripcion })),
   ];
 
   const brandOptions = [
     { value: '', label: 'Todas las marcas' },
-    ...brands.map(brand => ({ value: brand.id.toString(), label: brand.descripcion })),
+    ...brands.map((brand) => ({ value: brand.id.toString(), label: brand.descripcion })),
   ];
 
-  const handleFilterChange = (key: keyof ReportFilters, value: any) => {
+  // ✅ CORRECCIÓN: Se reemplazó 'any' por un tipo más específico.
+  const handleFilterChange = (key: keyof ReportFiltersType, value: string | boolean) => {
     onFiltersChange({ ...filters, [key]: value });
   };
 
@@ -126,31 +128,17 @@ export const ReportFilters = ({
       </div>
 
       <div className={styles.actionsRow}>
-        <button 
-          type="button" 
-          className={styles.clearAction}
-          onClick={handleClearFilters}
-        >
+        <button type="button" className={styles.clearAction} onClick={handleClearFilters}>
           Limpiar Filtros
         </button>
 
         <div className={styles.generateActions}>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={onGenerateCSV}
-            disabled={isGenerating}
-          >
+          <Button variant="secondary" size="sm" onClick={onGenerateCSV} disabled={isGenerating}>
             <MdTableChart size={16} />
             Exportar CSV
           </Button>
-          
-          <Button
-            size="sm"
-            onClick={onGeneratePDF}
-            disabled={isGenerating}
-            loading={isGenerating}
-          >
+
+          <Button size="sm" onClick={onGeneratePDF} disabled={isGenerating} loading={isGenerating}>
             <MdPictureAsPdf size={16} />
             Generar PDF
           </Button>

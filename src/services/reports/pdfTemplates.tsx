@@ -1,19 +1,13 @@
-import {
-  Document,
-  Page,
-  Text,
-  View,
-  StyleSheet,
-  Font,
-} from '@react-pdf/renderer';
-import type { ReportData, ExportOptions } from '../../types/reports';
-import { formatCurrency, formatDate, formatNumber } from '../../utils/format';
-
-// Registrar fuentes (opcional)
-// Font.register({
-//   family: 'Roboto',
-//   src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-light-webfont.ttf'
-// });
+import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import type { KardexExtendido, ProductoExtendido } from '../../types/database';
+import type {
+  AnyReportData,
+  InventoryValueData,
+  KardexReportData,
+  StockReportData,
+} from '../../types/reports';
+// ✅ CORRECCIÓN: Se eliminó 'formatNumber' que no se estaba utilizando.
+import { formatCurrency, formatDate } from '../../utils/format';
 
 const styles = StyleSheet.create({
   page: {
@@ -114,86 +108,7 @@ const styles = StyleSheet.create({
   },
 });
 
-interface ReportPDFTemplateProps {
-  data: ReportData;
-  options: ExportOptions;
-}
-
-export const ReportPDFTemplate = ({ data, options }: ReportPDFTemplateProps) => {
-  const isLandscape = options.orientacion === 'landscape';
-
-  return (
-    <Document>
-      <Page 
-        size="A4" 
-        style={styles.page}
-        orientation={isLandscape ? 'landscape' : 'portrait'}
-      >
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.title}>{data.titulo}</Text>
-          {data.subtitulo && <Text style={styles.subtitle}>{data.subtitulo}</Text>}
-          <Text style={styles.metadata}>
-            Generado el {data.fechaGeneracion} | FiveStock v2.0
-          </Text>
-        </View>
-
-        {/* Estadísticas */}
-        {data.estadisticas && (
-          <View style={styles.statsContainer}>
-            <View style={styles.statBox}>
-              <Text style={styles.statValue}>
-                {formatNumber(data.estadisticas.totalProductos)}
-              </Text>
-              <Text style={styles.statLabel}>Total Productos</Text>
-            </View>
-            <View style={styles.statBox}>
-              <Text style={styles.statValue}>
-                {formatCurrency(data.estadisticas.totalValor)}
-              </Text>
-              <Text style={styles.statLabel}>Valor Total</Text>
-            </View>
-            <View style={styles.statBox}>
-              <Text style={styles.statValue}>
-                {formatNumber(data.estadisticas.stockBajo)}
-              </Text>
-              <Text style={styles.statLabel}>Stock Bajo</Text>
-            </View>
-            <View style={styles.statBox}>
-              <Text style={styles.statValue}>
-                {formatNumber(data.estadisticas.entradas)}
-              </Text>
-              <Text style={styles.statLabel}>Entradas</Text>
-            </View>
-            <View style={styles.statBox}>
-              <Text style={styles.statValue}>
-                {formatNumber(data.estadisticas.salidas)}
-              </Text>
-              <Text style={styles.statLabel}>Salidas</Text>
-            </View>
-          </View>
-        )}
-
-        {/* Tabla de Productos */}
-        {data.productos && data.productos.length > 0 && (
-          <ProductTable productos={data.productos} />
-        )}
-
-        {/* Tabla de Movimientos */}
-        {data.movimientos && data.movimientos.length > 0 && (
-          <MovementTable movimientos={data.movimientos} />
-        )}
-
-        {/* Footer */}
-        <Text style={styles.footer}>
-          Reporte generado por FiveStock - Sistema de Gestión de Inventarios
-        </Text>
-      </Page>
-    </Document>
-  );
-};
-
-const ProductTable = ({ productos }: { productos: any[] }) => (
+const ProductTable = ({ productos }: { productos: ProductoExtendido[] }) => (
   <View style={styles.table}>
     {/* Header */}
     <View style={styles.tableRow}>
@@ -216,10 +131,10 @@ const ProductTable = ({ productos }: { productos: any[] }) => (
         <Text style={styles.tableCellHeader}>Valor Total</Text>
       </View>
     </View>
-    
+
     {/* Rows */}
-    {productos.map((producto, index) => (
-      <View style={styles.tableRow} key={index}>
+    {productos.map((producto) => (
+      <View style={styles.tableRow} key={producto.id}>
         <View style={[styles.tableCol, { width: '30%' }]}>
           <Text style={styles.tableCell}>{producto.descripcion}</Text>
         </View>
@@ -245,7 +160,7 @@ const ProductTable = ({ productos }: { productos: any[] }) => (
   </View>
 );
 
-const MovementTable = ({ movimientos }: { movimientos: any[] }) => (
+const MovementTable = ({ movimientos }: { movimientos: KardexExtendido[] }) => (
   <View style={styles.table}>
     {/* Header */}
     <View style={styles.tableRow}>
@@ -268,10 +183,10 @@ const MovementTable = ({ movimientos }: { movimientos: any[] }) => (
         <Text style={styles.tableCellHeader}>Usuario</Text>
       </View>
     </View>
-    
+
     {/* Rows */}
-    {movimientos.map((movimiento, index) => (
-      <View style={styles.tableRow} key={index}>
+    {movimientos.map((movimiento) => (
+      <View style={styles.tableRow} key={movimiento.id}>
         <View style={[styles.tableCol, { width: '15%' }]}>
           <Text style={styles.tableCell}>{formatDate(movimiento.fecha)}</Text>
         </View>
@@ -293,4 +208,33 @@ const MovementTable = ({ movimientos }: { movimientos: any[] }) => (
       </View>
     ))}
   </View>
+);
+
+export const StockReportPDF = ({ data }: { data: AnyReportData }) => (
+  <Document>
+    <Page>
+      <ProductTable productos={(data as StockReportData).data} />
+    </Page>
+  </Document>
+);
+export const LowStockReportPDF = ({ data }: { data: AnyReportData }) => (
+  <Document>
+    <Page>
+      <ProductTable productos={(data as StockReportData).data} />
+    </Page>
+  </Document>
+);
+export const KardexReportPDF = ({ data }: { data: AnyReportData }) => (
+  <Document>
+    <Page>
+      <MovementTable movimientos={(data as KardexReportData).data} />
+    </Page>
+  </Document>
+);
+export const InventoryValueReportPDF = ({ data }: { data: AnyReportData }) => (
+  <Document>
+    <Page>
+      <ProductTable productos={(data as InventoryValueData).data} />
+    </Page>
+  </Document>
 );

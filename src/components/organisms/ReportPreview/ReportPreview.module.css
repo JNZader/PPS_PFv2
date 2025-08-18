@@ -113,11 +113,11 @@
   .summaryGrid {
     grid-template-columns: 1fr;
   }
-  
+
   .dataTable {
     font-size: var(--font-size-sm);
   }
-  
+
   .dataTable th,
   .dataTable td {
     padding: var(--spacing-xs);

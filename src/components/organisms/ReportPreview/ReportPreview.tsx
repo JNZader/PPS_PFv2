@@ -1,10 +1,11 @@
-import { Loading } from '../../atoms/Loading';
-import type { ReportData } from '../../../types/reports';
+import type { KardexExtendido, ProductoExtendido } from '../../../types/database';
+import type { AnyReportData, InventoryValueProduct } from '../../../types/reports';
 import { formatCurrency, formatDate, formatNumber } from '../../../utils/format';
+import { Loading } from '../../atoms/Loading';
 import styles from './ReportPreview.module.css';
 
 interface ReportPreviewProps {
-  data: ReportData | null;
+  data: AnyReportData | null;
   isLoading?: boolean;
 }
 
@@ -41,7 +42,9 @@ export const ReportPreview = ({ data, isLoading }: ReportPreviewProps) => {
             </div>
             {data.type === 'low-stock' && (
               <div className={styles.summaryItem}>
-                <div className={styles.summaryValue}>{formatNumber(data.summary.criticalProducts || 0)}</div>
+                <div className={styles.summaryValue}>
+                  {formatNumber(data.summary.criticalProducts || 0)}
+                </div>
                 <div className={styles.summaryLabel}>Sin Stock</div>
               </div>
             )}
@@ -70,15 +73,21 @@ export const ReportPreview = ({ data, isLoading }: ReportPreviewProps) => {
         return (
           <div className={styles.summaryGrid}>
             <div className={styles.summaryItem}>
-              <div className={styles.summaryValue}>{formatCurrency(data.summary.totalValueSale)}</div>
+              <div className={styles.summaryValue}>
+                {formatCurrency(data.summary.totalValueSale)}
+              </div>
               <div className={styles.summaryLabel}>Valor Venta</div>
             </div>
             <div className={styles.summaryItem}>
-              <div className={styles.summaryValue}>{formatCurrency(data.summary.totalValueCost)}</div>
+              <div className={styles.summaryValue}>
+                {formatCurrency(data.summary.totalValueCost)}
+              </div>
               <div className={styles.summaryLabel}>Valor Compra</div>
             </div>
             <div className={styles.summaryItem}>
-              <div className={styles.summaryValue}>{formatCurrency(data.summary.totalPotentialProfit)}</div>
+              <div className={styles.summaryValue}>
+                {formatCurrency(data.summary.totalPotentialProfit)}
+              </div>
               <div className={styles.summaryLabel}>Utilidad Potencial</div>
             </div>
           </div>
@@ -93,9 +102,6 @@ export const ReportPreview = ({ data, isLoading }: ReportPreviewProps) => {
     if (!data.data || data.data.length === 0) {
       return <p>No hay datos para mostrar</p>;
     }
-
-    // Mostrar solo los primeros 10 elementos en la vista previa
-    const previewData = data.data.slice(0, 10);
 
     switch (data.type) {
       case 'stock':
@@ -113,17 +119,23 @@ export const ReportPreview = ({ data, isLoading }: ReportPreviewProps) => {
               </tr>
             </thead>
             <tbody>
-              {previewData.map((item: any, index: number) => (
-                <tr key={index}>
+              {/* ✅ CORRECCIÓN: Se usa el 'id' del producto como key. */}
+              {data.data.slice(0, 10).map((item: ProductoExtendido) => (
+                <tr key={item.id}>
                   <td>{item.descripcion}</td>
                   <td>{item.categoria}</td>
                   <td>{item.stock}</td>
                   <td>{item.stock_minimo}</td>
                   <td>{formatCurrency(item.precioventa)}</td>
                   <td>
-                    <span style={{ 
-                      color: item.stock <= item.stock_minimo ? 'var(--color-error)' : 'var(--color-success)' 
-                    }}>
+                    <span
+                      style={{
+                        color:
+                          item.stock <= item.stock_minimo
+                            ? 'var(--color-error)'
+                            : 'var(--color-success)',
+                      }}
+                    >
                       {item.stock <= item.stock_minimo ? 'BAJO' : 'OK'}
                     </span>
                   </td>
@@ -146,14 +158,18 @@ export const ReportPreview = ({ data, isLoading }: ReportPreviewProps) => {
               </tr>
             </thead>
             <tbody>
-              {previewData.map((item: any, index: number) => (
-                <tr key={index}>
+              {/* ✅ CORRECCIÓN: Se usa el 'id' del movimiento como key. */}
+              {data.data.slice(0, 10).map((item: KardexExtendido) => (
+                <tr key={item.id}>
                   <td>{formatDate(item.fecha)}</td>
                   <td>{item.descripcion}</td>
                   <td>
-                    <span style={{ 
-                      color: item.tipo === 'entrada' ? 'var(--color-success)' : 'var(--color-error)' 
-                    }}>
+                    <span
+                      style={{
+                        color:
+                          item.tipo === 'entrada' ? 'var(--color-success)' : 'var(--color-error)',
+                      }}
+                    >
                       {item.tipo.toUpperCase()}
                     </span>
                   </td>
@@ -178,15 +194,19 @@ export const ReportPreview = ({ data, isLoading }: ReportPreviewProps) => {
               </tr>
             </thead>
             <tbody>
-              {previewData.map((item: any, index: number) => (
-                <tr key={index}>
+              {/* ✅ CORRECCIÓN: Se usa el 'id' del producto como key. */}
+              {data.data.slice(0, 10).map((item: InventoryValueProduct) => (
+                <tr key={item.id}>
                   <td>{item.descripcion}</td>
                   <td>{item.stock}</td>
                   <td>{formatCurrency(item.valorCompra)}</td>
                   <td>{formatCurrency(item.valorVenta)}</td>
-                  <td style={{ 
-                    color: item.utilidadPotencial > 0 ? 'var(--color-success)' : 'var(--color-error)' 
-                  }}>
+                  <td
+                    style={{
+                      color:
+                        item.utilidadPotencial > 0 ? 'var(--color-success)' : 'var(--color-error)',
+                    }}
+                  >
                     {formatCurrency(item.utilidadPotencial)}
                   </td>
                 </tr>
@@ -220,7 +240,8 @@ export const ReportPreview = ({ data, isLoading }: ReportPreviewProps) => {
             Datos ({data.data?.length || 0} registros)
             {data.data && data.data.length > 10 && (
               <span style={{ fontWeight: 'normal', fontSize: 'var(--font-size-sm)' }}>
-                {' '}(mostrando primeros 10)
+                {' '}
+                (mostrando primeros 10)
               </span>
             )}
           </h4>

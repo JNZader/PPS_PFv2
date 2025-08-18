@@ -118,6 +118,8 @@ export interface Database {
           nombres: string;
           stock: number;
           estado: number;
+          // ✅ CORRECCIÓN: Se asume que la función de DB devuelve (o debería devolver) id_producto.
+          id_producto: number;
         }[];
       };
       buscarproductos: {
@@ -150,7 +152,6 @@ export type Categoria = Database['public']['Tables']['categorias']['Row'];
 export type Marca = Database['public']['Tables']['marca']['Row'];
 export type Kardex = Database['public']['Tables']['kardex']['Row'];
 
-// Interfaz para el tipo Product que se usa en MovementForm.tsx
 export interface Product {
   id: number;
   descripcion: string;
@@ -194,16 +195,17 @@ export interface ProductoFormData {
   id_categoria: number;
 }
 
-// ✅ NUEVOS TIPOS PARA KARDEX
 export interface KardexExtendido {
   id: number;
-  descripcion: string; // nombre del producto
+  // ✅ CORRECCIÓN: Se añade esta propiedad, que faltaba para el filtro.
+  id_producto: number;
+  descripcion: string;
   fecha: string;
   cantidad: number;
-  tipo: string; // 'entrada' | 'salida'
+  tipo: string;
   detalle: string;
-  nombres: string; // nombre del usuario
-  stock: number; // stock resultante
+  nombres: string;
+  stock: number;
   estado: number;
 }
 

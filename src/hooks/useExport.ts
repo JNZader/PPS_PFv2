@@ -1,96 +1,62 @@
 import { useMutation } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { pdf } from '@react-pdf/renderer';
-import Papa from 'papaparse';
-import type { ReportData, ExportOptions } from '../types/reports';
-import { ReportPDFTemplate } from '../services/reports/pdfTemplates';
+import { ReportGenerator } from '../services/reports/reportGenerator';
+// ✅ CORRECCIÓN: Se utiliza un tipo de dato que une todos los posibles reportes.
+// Asegúrate de que este tipo esté bien definido en tu archivo de tipos.
+import type { AnyReportData } from '../types/reports';
 
-export const useExport = () => {
+/**
+ * NOTA IMPORTANTE:
+ * Para que este hook funcione, necesitas instalar 'papaparse' y sus tipos.
+ * Ejecuta los siguientes comandos en tu terminal:
+ * bun add papaparse
+ * bun add -d @types/papaparse
+ */
+
+/**
+ * Hook para exportar datos de reporte ya generados a PDF o CSV.
+ * Si necesitas generar los datos del reporte primero, usa el hook `useGenerateReport` de `useReports.ts`.
+ */
+export const useExportReport = () => {
+  // Mutación para exportar a PDF
   const exportPDF = useMutation({
-    mutationFn: async ({ data, options }: { data: ReportData; options: ExportOptions }) => {
-      const doc = <ReportPDFTemplate data={data} options={options} />;
-      const blob = await pdf(doc).toBlob();
-      
-      // Descargar archivo
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${data.titulo.replace(/\s+/g, '-').toLowerCase()}-${Date.now()}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-      
-      return blob;
+    mutationFn: async (data: AnyReportData) => {
+      if (!data) {
+        throw new Error('No se proporcionaron datos para exportar.');
+      }
+      const pdfBlob = await ReportGenerator.generatePDF(data);
+      ReportGenerator.downloadFile(pdfBlob, `${data.type}-report`, 'pdf');
+      return pdfBlob;
     },
     onSuccess: () => {
-      toast.success('PDF generado exitosamente');
+      toast.success('PDF exportado exitosamente');
     },
-    onError: () => {
-      toast.error('Error al generar PDF');
+    onError: (error: Error) => {
+      toast.error(`Error al exportar PDF: ${error.message}`);
     },
   });
 
+  // Mutación para exportar a CSV
   const exportCSV = useMutation({
-    mutationFn: async ({ data }: { data: ReportData }) => {
-      if (!data.productos?.length && !data.movimientos?.length) {
-        throw new Error('No hay datos para exportar');
+    mutationFn: async (data: AnyReportData) => {
+      if (!data) {
+        throw new Error('No se proporcionaron datos para exportar.');
       }
-
-      let csvData: any[] = [];
-      let filename = '';
-
-      if (data.productos?.length) {
-        csvData = data.productos.map(product => ({
-          'Descripción': product.descripcion,
-          'SKU': product.codigointerno || '',
-          'Categoría': product.categoria,
-          'Marca': product.marca,
-          'Stock': product.stock,
-          'Stock Mínimo': product.stock_minimo,
-          'Precio Compra': product.preciocompra,
-          'Precio Venta': product.precioventa,
-          'Valor Stock': product.stock * product.precioventa,
-        }));
-        filename = `productos-${Date.now()}.csv`;
-      } else if (data.movimientos?.length) {
-        csvData = data.movimientos.map(movement => ({
-          'Fecha': movement.fecha,
-          'Producto': movement.descripcion,
-          'Tipo': movement.tipo,
-          'Cantidad': movement.cantidad,
-          'Detalle': movement.detalle,
-          'Usuario': movement.nombres,
-        }));
-        filename = `movimientos-${Date.now()}.csv`;
-      }
-
-      const csv = Papa.unparse(csvData);
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      
-      // Descargar archivo
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-      
-      return blob;
+      const csvContent = ReportGenerator.generateCSV(data);
+      ReportGenerator.downloadFile(csvContent, `${data.type}-report`, 'csv');
+      return csvContent;
     },
     onSuccess: () => {
-      toast.success('CSV generado exitosamente');
+      toast.success('CSV exportado exitosamente');
     },
-    onError: (error) => {
-      toast.error(error instanceof Error ? error.message : 'Error al generar CSV');
+    onError: (error: Error) => {
+      toast.error(`Error al exportar CSV: ${error.message}`);
     },
   });
 
   return {
-    exportPDF,
-    exportCSV,
+    exportPDF: exportPDF.mutateAsync,
+    exportCSV: exportCSV.mutateAsync,
     isExporting: exportPDF.isPending || exportCSV.isPending,
   };
 };
