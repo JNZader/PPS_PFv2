@@ -130,7 +130,9 @@ export const ReportPreview = ({ data, isLoading }: ReportPreviewProps) => {
                     <span
                       style={{
                         color:
-                          item.stock <= item.stock_minimo ? 'var(--color-error)' : 'var(--color-success)',
+                          item.stock <= item.stock_minimo
+                            ? 'var(--color-error)'
+                            : 'var(--color-success)',
                       }}
                     >
                       {item.stock <= item.stock_minimo ? 'BAJO' : 'OK'}
@@ -162,7 +164,8 @@ export const ReportPreview = ({ data, isLoading }: ReportPreviewProps) => {
                   <td>
                     <span
                       style={{
-                        color: item.tipo === 'entrada' ? 'var(--color-success)' : 'var(--color-error)',
+                        color:
+                          item.tipo === 'entrada' ? 'var(--color-success)' : 'var(--color-error)',
                       }}
                     >
                       {item.tipo.toUpperCase()}
@@ -197,7 +200,8 @@ export const ReportPreview = ({ data, isLoading }: ReportPreviewProps) => {
                   <td>{formatCurrency(item.valorVenta)}</td>
                   <td
                     style={{
-                      color: item.utilidadPotencial > 0 ? 'var(--color-success)' : 'var(--color-error)',
+                      color:
+                        item.utilidadPotencial > 0 ? 'var(--color-success)' : 'var(--color-error)',
                     }}
                   >
                     {formatCurrency(item.utilidadPotencial)}

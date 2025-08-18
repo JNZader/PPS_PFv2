@@ -19,7 +19,11 @@ import { ReportCard } from '../../components/organisms/ReportCard';
 import { ReportPreview } from '../../components/organisms/ReportPreview';
 import { useProducts } from '../../hooks/useProducts';
 import { ReportGenerator } from '../../services/reports/reportGenerator';
-import type { AnyReportData, ReportFilters as IReportFilters, ReportType } from '../../types/reports';
+import type {
+  AnyReportData,
+  ReportFilters as IReportFilters,
+  ReportType,
+} from '../../types/reports';
 import { formatCurrency, formatNumber, formatRelativeTime } from '../../utils/format';
 import styles from './Reports.module.css';
 
