@@ -7,6 +7,7 @@ import {
   MdHelpOutline,
   MdInventory,
   MdPictureAsPdf,
+  MdPreview,
   MdTrendingDown,
   MdTrendingUp,
   MdWarning,
@@ -15,18 +16,18 @@ import { Alert } from '../../components/atoms/Alert';
 import { Loading } from '../../components/atoms/Loading';
 import { ReportFilters } from '../../components/molecules/ReportFilters';
 import { ReportCard } from '../../components/organisms/ReportCard';
+import { ReportPreview } from '../../components/organisms/ReportPreview';
 import { useProducts } from '../../hooks/useProducts';
 import { ReportGenerator } from '../../services/reports/reportGenerator';
-// ✅ CORRECCIÓN: Se importa AnyReportData para tipar correctamente los generadores.
-import type { AnyReportData, ReportFilters as IReportFilters } from '../../types/reports';
+import type { AnyReportData, ReportFilters as IReportFilters, ReportType } from '../../types/reports';
 import { formatCurrency, formatNumber, formatRelativeTime } from '../../utils/format';
 import styles from './Reports.module.css';
 
 export const Reports = () => {
   const [filters, setFilters] = useState<IReportFilters>({
-    // ✅ CORRECCIÓN: Se establece un valor inicial para tipoReporte para que coincida con la definición de tipos.
     tipoReporte: 'stock-actual',
   });
+  const [reportData, setReportData] = useState<AnyReportData | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [lastGenerated, setLastGenerated] = useState<Record<string, string>>({});
 
@@ -72,20 +73,33 @@ export const Reports = () => {
     },
   ];
 
-  // ✅ CORRECCIÓN: Se tipa el parámetro 'generator' correctamente.
-  const handleGeneratePDF = async (reportType: string, generator: () => Promise<AnyReportData>) => {
+  const handleGenerateReport = async (type: ReportType) => {
     try {
       setIsGenerating(true);
-      const reportData = await generator();
+      const data = await availableReports.find((r) => r.type === type)?.generator();
+      if (data) {
+        setReportData(data);
+        setLastGenerated((prev) => ({
+          ...prev,
+          [type]: formatRelativeTime(new Date()),
+        }));
+        toast.success('Reporte generado exitosamente');
+      }
+    } catch (error) {
+      console.error('Error generating report:', error);
+      toast.error('Error al generar el reporte');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleGeneratePDF = async () => {
+    if (!reportData) return;
+
+    try {
+      setIsGenerating(true);
       const pdfBlob = await ReportGenerator.generatePDF(reportData);
-
-      ReportGenerator.downloadFile(pdfBlob, `${reportType}-report`, 'pdf');
-
-      setLastGenerated((prev) => ({
-        ...prev,
-        [reportType]: formatRelativeTime(new Date()),
-      }));
-
+      ReportGenerator.downloadFile(pdfBlob, `${reportData.type}-report`, 'pdf');
       toast.success('Reporte PDF generado exitosamente');
     } catch (error) {
       console.error('Error generating PDF:', error);
@@ -95,20 +109,13 @@ export const Reports = () => {
     }
   };
 
-  // ✅ CORRECCIÓN: Se tipa el parámetro 'generator' correctamente.
-  const handleGenerateCSV = async (reportType: string, generator: () => Promise<AnyReportData>) => {
+  const handleGenerateCSV = async () => {
+    if (!reportData) return;
+
     try {
       setIsGenerating(true);
-      const reportData = await generator();
       const csvContent = ReportGenerator.generateCSV(reportData);
-
-      ReportGenerator.downloadFile(csvContent, `${reportType}-report`, 'csv');
-
-      setLastGenerated((prev) => ({
-        ...prev,
-        [reportType]: formatRelativeTime(new Date()),
-      }));
-
+      ReportGenerator.downloadFile(csvContent, `${reportData.type}-report`, 'csv');
       toast.success('Reporte CSV generado exitosamente');
     } catch (error) {
       console.error('Error generating CSV:', error);
@@ -197,7 +204,9 @@ export const Reports = () => {
         <ReportFilters
           filters={filters}
           onFiltersChange={handleFiltersChange}
-          isGenerating={isGenerating} // ✅ CORRECCIÓN: Se cambió 'disabled' por 'isGenerating'.
+          onGeneratePDF={handleGeneratePDF}
+          onGenerateCSV={handleGenerateCSV}
+          isGenerating={isGenerating}
         />
       </div>
 
@@ -211,10 +220,20 @@ export const Reports = () => {
             description={report.description}
             icon={report.icon}
             lastGenerated={lastGenerated[report.type]}
-            onGeneratePDF={() => handleGeneratePDF(report.type, report.generator)}
-            onGenerateCSV={() => handleGenerateCSV(report.type, report.generator)}
+            onGeneratePDF={() => handleGenerateReport(report.type)}
+            onGenerateCSV={() => handleGenerateReport(report.type)}
+            onPreview={() => handleGenerateReport(report.type)}
           />
         ))}
+      </div>
+
+      {/* Visor de reportes */}
+      <div className={styles.previewSection}>
+        <h2 className={styles.sectionTitle}>
+          <MdPreview size={24} />
+          Vista Previa del Reporte
+        </h2>
+        <ReportPreview data={reportData} isLoading={isGenerating} />
       </div>
 
       {/* Reportes Recientes */}
@@ -248,7 +267,7 @@ export const Reports = () => {
                   <button
                     type="button"
                     className={styles.downloadButton}
-                    onClick={() => report && handleGeneratePDF(type, report.generator)}
+                    onClick={() => report && handleGenerateReport(type as ReportType)}
                     disabled={isGenerating}
                   >
                     <MdDownload size={16} />

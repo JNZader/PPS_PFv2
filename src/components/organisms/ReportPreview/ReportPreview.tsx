@@ -45,7 +45,7 @@ export const ReportPreview = ({ data, isLoading }: ReportPreviewProps) => {
                 <div className={styles.summaryValue}>
                   {formatNumber(data.summary.criticalProducts || 0)}
                 </div>
-                <div className={styles.summaryLabel}>Sin Stock</div>
+                <div className={styles.summaryLabel}>Productos Críticos</div>
               </div>
             )}
           </div>
@@ -119,7 +119,6 @@ export const ReportPreview = ({ data, isLoading }: ReportPreviewProps) => {
               </tr>
             </thead>
             <tbody>
-              {/* ✅ CORRECCIÓN: Se usa el 'id' del producto como key. */}
               {data.data.slice(0, 10).map((item: ProductoExtendido) => (
                 <tr key={item.id}>
                   <td>{item.descripcion}</td>
@@ -131,9 +130,7 @@ export const ReportPreview = ({ data, isLoading }: ReportPreviewProps) => {
                     <span
                       style={{
                         color:
-                          item.stock <= item.stock_minimo
-                            ? 'var(--color-error)'
-                            : 'var(--color-success)',
+                          item.stock <= item.stock_minimo ? 'var(--color-error)' : 'var(--color-success)',
                       }}
                     >
                       {item.stock <= item.stock_minimo ? 'BAJO' : 'OK'}
@@ -158,7 +155,6 @@ export const ReportPreview = ({ data, isLoading }: ReportPreviewProps) => {
               </tr>
             </thead>
             <tbody>
-              {/* ✅ CORRECCIÓN: Se usa el 'id' del movimiento como key. */}
               {data.data.slice(0, 10).map((item: KardexExtendido) => (
                 <tr key={item.id}>
                   <td>{formatDate(item.fecha)}</td>
@@ -166,8 +162,7 @@ export const ReportPreview = ({ data, isLoading }: ReportPreviewProps) => {
                   <td>
                     <span
                       style={{
-                        color:
-                          item.tipo === 'entrada' ? 'var(--color-success)' : 'var(--color-error)',
+                        color: item.tipo === 'entrada' ? 'var(--color-success)' : 'var(--color-error)',
                       }}
                     >
                       {item.tipo.toUpperCase()}
@@ -194,7 +189,6 @@ export const ReportPreview = ({ data, isLoading }: ReportPreviewProps) => {
               </tr>
             </thead>
             <tbody>
-              {/* ✅ CORRECCIÓN: Se usa el 'id' del producto como key. */}
               {data.data.slice(0, 10).map((item: InventoryValueProduct) => (
                 <tr key={item.id}>
                   <td>{item.descripcion}</td>
@@ -203,8 +197,7 @@ export const ReportPreview = ({ data, isLoading }: ReportPreviewProps) => {
                   <td>{formatCurrency(item.valorVenta)}</td>
                   <td
                     style={{
-                      color:
-                        item.utilidadPotencial > 0 ? 'var(--color-success)' : 'var(--color-error)',
+                      color: item.utilidadPotencial > 0 ? 'var(--color-success)' : 'var(--color-error)',
                     }}
                   >
                     {formatCurrency(item.utilidadPotencial)}
